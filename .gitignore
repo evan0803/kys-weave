@@ -1,0 +1,8 @@
+# 內部資料一律不進公開儲存庫
+data/
+out/
+node_modules/
+*.xlsx
+*.docx
+*.zip
+.DS_Store
