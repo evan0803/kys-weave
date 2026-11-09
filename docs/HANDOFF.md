@@ -35,6 +35,7 @@
 | 11/07 | 知識層採「代擬草稿＋部門確認」：部門只需勾選保留／修改／刪除 |
 | 11/07 | 會診改為**六部門同步、各自獨立判斷**，不需順序；稽核處固定最後回覆；**任何部門都能當入口** |
 | 11/07 | 時點：從詢價前到送報價分析前都能隨時送上經緯島；送給長官的報價分析前，六燈必須到齊 |
+| 11/09 | 兩個版本並行：**展示版**在 GitHub Pages（公開、寫死案例）；**實測版**在 claude.ai 私人成品（上傳檔案、AI 依規則會診），只放模擬資料，報告後再轉內部平台 |
 
 ## 4. 系統架構（三層）
 
@@ -58,7 +59,12 @@ tools/knowledge/           知識層：內容與 Excel 產生器
   kys_content2.py          真實案例 R1／R2；會計、採購代擬；聯稽 43 條載入（讀 data/）
   kys_content3.py          併入採購題庫 29 條、會計 6 條（讀 data/）；來源欄；國際事務代碼改 T
   build_xlsx.py            產生六份確認稿＋總表到 out/
+  export_rules.py          匯出六部門規則到 out/rules.json（實測版用）
+tools/live/                實測版（claude.ai 私人成品 https://claude.ai/artifact/W4St2o7bT4np1AUH1FnG2r）
+  live.template.html       頁面原始碼（不含規則與範例檔）
+  build_live.py            內嵌 rules.json 與範例 Excel → out/live/kys-live.html，再用 Artifact 發布
 tools/test/smoke.js        Playwright 冒煙測試（攔截 CDN 改用本機 three）
+tools/test/live_smoke.js   實測版冒煙測試（假的 AI 回覆，跑完整流程）
 docs/HANDOFF.md            本文件
 data/   （gitignore）      部門原始交件檔，只放本機
 out/    （gitignore）      產出的 Excel 與截圖

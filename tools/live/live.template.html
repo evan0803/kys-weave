@@ -1,0 +1,391 @@
+<title>經緯島實測會診台</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<style>
+/* 版面：單欄工作流（送件 → 抽重點 → 六部門會診 → 會診單），每一步一張工作卡；六部門結果用色條區分 */
+:root{
+  --bg:#eef2f5; --paper:#ffffff; --ink:#1d2a36; --muted:#5d6b78; --line:#d3dbe2; --soft:#e3eaf0;
+  --navy:#16324f; --accent:#1b7f9e; --on-accent:#ffffff;
+  --c-proc:#2a9d8f; --c-fin:#c27c12; --c-acct:#4f8a3c; --c-intl:#2f6fb5; --c-aud:#c2475b; --c-jaud:#7a55b0;
+  --ok:#2f8a4f; --warn:#b98309; --bad:#c2475b; --ok-bg:#e4f3e9; --warn-bg:#fbf1d9; --bad-bg:#fae3e6;
+  --f-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-mono:ui-monospace,"Cascadia Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1a26; --paper:#17222e; --ink:#e6edf3; --muted:#9aabba; --line:#2a3a4b; --soft:#1f2d3b;
+  --navy:#9cc7e6; --accent:#4fb8d6; --on-accent:#0f1a26;
+  --ok:#5cc282; --warn:#e3b341; --bad:#f07587; --ok-bg:#16301f; --warn-bg:#33290f; --bad-bg:#3a1a20; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a26; --paper:#17222e; --ink:#e6edf3; --muted:#9aabba; --line:#2a3a4b; --soft:#1f2d3b;
+  --navy:#9cc7e6; --accent:#4fb8d6; --on-accent:#0f1a26;
+  --ok:#5cc282; --warn:#e3b341; --bad:#f07587; --ok-bg:#16301f; --warn-bg:#33290f; --bad-bg:#3a1a20; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+main{max-width:920px;margin:0 auto;display:grid;gap:18px}
+header{display:grid;gap:6px}
+h1{font-family:var(--f-display);font-size:28px;margin:0;color:var(--navy);letter-spacing:.04em;text-wrap:balance}
+.lead{color:var(--muted);margin:0}
+.sim{border:1px solid var(--warn);background:var(--warn-bg);border-radius:10px;padding:10px 14px;font-size:14px}
+.sim b{color:var(--warn)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:12px;min-width:0}
+.card h2{margin:0;font-family:var(--f-display);font-size:20px;display:flex;gap:10px;align-items:baseline;text-wrap:balance}
+.card h2 .n{font-family:var(--f-body);font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--muted)}
+.card.off{opacity:.55}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+select,textarea,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+textarea{width:100%;min-height:70px;resize:vertical}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:8px 16px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,select:focus-visible,textarea:focus-visible,.drop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--muted);cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--soft)}
+.files{display:grid;gap:6px}
+.file{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:14px;min-width:0}
+.file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.file small{color:var(--muted);white-space:nowrap}
+.file button{padding:2px 8px;font-size:13px}
+.status{font-size:14px;color:var(--muted);min-height:1.4em}
+.status.err{color:var(--bad)}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.06em}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:13px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted)}
+.tag.on{background:var(--navy);border-color:var(--navy);color:var(--paper)}
+.flags{margin:0;padding-left:20px}
+.depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.dept{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:12px 14px;display:grid;gap:6px;align-content:start;min-width:0}
+.dept .hd{display:flex;align-items:center;gap:8px}
+.dept .hd b{font-size:16px}
+.dept .hd .lt{margin-left:auto}
+.dept .match{font-size:12px;color:var(--muted)}
+.dept p{margin:0}
+.dept ul{margin:0;padding-left:18px;font-size:14px}
+.dept .ids{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.lt{font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;white-space:nowrap;border:1px solid currentColor}
+.lt-綠{color:var(--ok);background:var(--ok-bg)} .lt-黃{color:var(--warn);background:var(--warn-bg)} .lt-紅{color:var(--bad);background:var(--bad-bg)}
+.lt-wait{color:var(--muted)}
+.verdict{border-radius:10px;padding:12px 14px;font-weight:700}
+.verdict.ok{background:var(--ok-bg);color:var(--ok)} .verdict.bad{background:var(--bad-bg);color:var(--bad)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);margin:0}
+.dots{display:flex;gap:6px}
+.dots i{width:14px;height:14px;border-radius:50%;background:var(--line)}
+.dots i.綠{background:var(--ok)} .dots i.黃{background:var(--warn)} .dots i.紅{background:var(--bad)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<main>
+<header>
+  <h1>經緯島實測會診台</h1>
+  <p class="lead">遠東經緯島 KYS 跨部門會診｜實測版：上傳案件檔案，由 AI 依六部門規則同步判斷。</p>
+  <div class="sim"><b>模擬環境</b>　只能上傳虛構資料。這裡用的是 Claude 服務，不是公司核准平台；正式使用前會轉移到內部平台。</div>
+</header>
+
+<section class="card" id="s1">
+  <h2><span class="n">步驟 1</span>送件</h2>
+  <div class="row">
+    <label class="f" for="entry">入口部門
+      <select id="entry"></select></label>
+    <label class="f" for="stage">目前階段
+      <select id="stage"></select></label>
+  </div>
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="選擇或拖放檔案">
+    把檔案拖到這裡，或按一下選擇<br><small>支援 Excel（.xlsx／.xls／.csv）、文字檔（.txt／.md）、圖片（.png／.jpg）</small>
+  </div>
+  <input type="file" id="pick" multiple accept=".xlsx,.xls,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" hidden>
+  <div class="files" id="files"></div>
+  <label class="f" for="memo">補充說明（選填）
+    <textarea id="memo" placeholder="例如：使用單位希望 5 個月內完成；加權係數尚未簽核"></textarea></label>
+  <div class="row">
+    <button class="primary" id="bExtract" type="button">送出並抽取重點</button>
+    <button id="bSample" type="button">改用範例檔：冰水主機三家報價</button>
+  </div>
+  <p class="status" id="st1"></p>
+</section>
+
+<section class="card off" id="s2">
+  <h2><span class="n">步驟 2</span>確認案件重點與觸發標籤</h2>
+  <div id="summary"><p class="note">送件後，AI 會先讀檔，抽出金額、幣別、付款條件、廠商等重點，轉成觸發標籤。請在這一步確認，抽錯可以點標籤增減。</p></div>
+  <div class="row">
+    <button class="primary" id="bConsult" type="button" disabled>送進經緯廣場，六部門同步會診</button>
+  </div>
+  <p class="status" id="st2"></p>
+</section>
+
+<section class="card off" id="s3">
+  <h2><span class="n">步驟 3</span>六部門會診</h2>
+  <div class="legend"><span><b class="lt lt-綠">綠</b> 允許（可附建議）</span><span><b class="lt lt-黃">黃</b> 無其他意見</span><span><b class="lt lt-紅">紅</b> 嚴重紅旗，處理後再送</span></div>
+  <div class="depts" id="depts"></div>
+  <p class="note">每個部門獨立判斷；稽核處固定最後回覆，會參考其他部門的意見。「規則比對」是依觸發標籤自動找出的條目，AI 再判斷是否真的成立。</p>
+</section>
+
+<section class="card off" id="s4">
+  <h2><span class="n">步驟 4</span>會診單</h2>
+  <div id="report"><p class="note">六燈到齊後，這裡會產出會診單。</p></div>
+  <div class="row">
+    <button id="bCsv" type="button" disabled>下載會診單（Excel 可開的 CSV）</button>
+    <button id="bMd" type="button" disabled>下載會診單（文字檔）</button>
+    <button id="bReset" type="button">重新送一件</button>
+  </div>
+  <p class="status" id="st4"></p>
+</section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const KB = /*RULES_JSON*/null;
+const SAMPLE_B64 = "/*SAMPLE_B64*/";
+const SAMPLE_NAME = "模擬測試_冰水主機三家報價分析_v1.xlsx";
+const DEPT_META = {proc:{island:"採購交易所"},fin:{island:"財務金庫"},acct:{island:"會計帳房"},intl:{island:"國際航港"},aud:{island:"稽核瞭望台"},jaud:{island:"聯稽明鏡堂"}};
+const STEPS = ["1 PR收件","2 標單確認","3 詢價","4 廠商報價","5 規格確認","6 報價分析","7 議價","8 議價說明","下單後"];
+const ALL_TAGS = [...new Set(KB.depts.flatMap(d => d.rules.flatMap(r => r.tags)))].filter(t => !t.startsWith("（")).sort((a,b)=>a.localeCompare(b,"zh-Hant"));
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const LIGHTS = ["綠","黃","紅"];
+
+let sample = null, downloads = null;
+const state = {files: [], extracted: null, tags: new Set(), results: {}, running: false};
+
+/* ---------- 初始化 ---------- */
+$("entry").innerHTML = KB.depts.map(d => `<option value="${d.key}">${esc(d.name)}</option>`).join("");
+$("stage").innerHTML = STEPS.map(s => `<option${s.startsWith("6") ? " selected" : ""}>${esc(s)}</option>`).join("");
+renderDepts();
+(async () => {
+  try { sample = await window.claude?.use("sample"); } catch { sample = null; }
+  try { downloads = await window.claude?.use("downloads"); } catch { downloads = null; }
+  if (!sample) { setStatus("st1", "這個畫面無法呼叫 Claude（請在 claude.ai 開啟本頁）。仍可上傳並預覽檔案內容。", true); }
+  if (!downloads) { $("bCsv").hidden = true; $("bMd").hidden = true; }
+})();
+
+function setStatus(id, msg, err) { const el = $(id); el.textContent = msg || ""; el.classList.toggle("err", !!err); }
+function errCopy(e) {
+  const c = e?.code;
+  if (c === "not_granted" || c === "sampling_disabled") return "沒有取得使用 Claude 的同意，無法分析。重新整理頁面後可再允許一次。";
+  if (c === "rate_limited") return "呼叫太頻繁或已達使用上限，請稍後再按一次。";
+  if (c === "session_expired") return "登入逾時，請重新登入 claude.ai。";
+  if (c === "prompt_too_large") return "檔案內容太長，請刪減工作表或改上傳重點頁。";
+  if (c === "invalid_json") return "AI 回覆格式不完整，請再按一次。";
+  if (c === "refused") return "AI 拒絕處理這份內容，請檢查檔案是否含不當資料。";
+  if (c === "image_rejected" || c === "images_unavailable") return "圖片無法送出，請改用 Excel 或文字檔。";
+  return "連線或服務暫時有問題，請再按一次。";
+}
+
+/* ---------- 檔案 ---------- */
+const drop = $("drop"), pick = $("pick");
+drop.onclick = () => pick.click();
+drop.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick.click(); } };
+drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); addFiles(e.dataTransfer.files); };
+pick.onchange = () => { addFiles(pick.files); pick.value = ""; };
+
+async function addFiles(list) {
+  for (const f of list) {
+    try { state.files.push(await readFile(f)); }
+    catch (e) { setStatus("st1", `${f.name} 無法讀取：${e.message || e}`, true); }
+  }
+  renderFiles();
+}
+async function readFile(f) {
+  const ext = f.name.split(".").pop().toLowerCase();
+  if (["png","jpg","jpeg","webp"].includes(ext)) return {name: f.name, kind: "圖片", blob: f, text: ""};
+  if (["txt","md"].includes(ext)) return {name: f.name, kind: "文字", text: (await f.text()).slice(0, 60000)};
+  if (["xlsx","xls","csv"].includes(ext)) {
+    if (!window.XLSX) throw new Error("Excel 讀取元件沒有載入（可能被網路擋住）");
+    const wb = XLSX.read(await f.arrayBuffer(), {type: "array"});
+    return {name: f.name, kind: "Excel", text: workbookText(wb), sheets: wb.SheetNames.length};
+  }
+  throw new Error("不支援這種檔案格式");
+}
+function workbookText(wb) {
+  return wb.SheetNames.map(n => {
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], {header: 1, raw: false, blankrows: false});
+    return `### 工作表：${n}\n` + rows.map(r => r.map(c => String(c ?? "").replace(/\s+/g, " ")).join(" | ")).join("\n");
+  }).join("\n\n").slice(0, 60000);
+}
+function renderFiles() {
+  $("files").innerHTML = state.files.map((f, i) => `<div class="file"><span>${esc(f.name)}</span><small>${f.kind}${f.sheets ? `・${f.sheets} 張工作表` : ""}${f.text ? `・${f.text.length.toLocaleString()} 字` : ""}</small><button type="button" data-i="${i}" aria-label="移除 ${esc(f.name)}">移除</button></div>`).join("");
+  $("files").querySelectorAll("button").forEach(b => b.onclick = () => { state.files.splice(+b.dataset.i, 1); renderFiles(); });
+}
+$("bSample").onclick = () => {
+  const bin = Uint8Array.from(atob(SAMPLE_B64), c => c.charCodeAt(0));
+  const wb = XLSX.read(bin, {type: "array"});
+  state.files = [{name: SAMPLE_NAME, kind: "Excel", text: workbookText(wb), sheets: wb.SheetNames.length}];
+  $("entry").value = "proc"; $("stage").value = "6 報價分析";
+  $("memo").value = "使用單位希望年底前完成下單；加權係數（CAPEX 20%／OPEX 80%）尚未簽核。";
+  renderFiles(); setStatus("st1", "已載入範例檔（全部為虛構資料）。按「送出並抽取重點」開始。");
+};
+
+/* ---------- 步驟 2：抽重點 ---------- */
+$("bExtract").onclick = async () => {
+  if (!state.files.length) return setStatus("st1", "請先上傳檔案，或改用範例檔。", true);
+  if (!sample) return setStatus("st1", "這個畫面無法呼叫 Claude，請在 claude.ai 開啟本頁。", true);
+  const btn = $("bExtract"); btn.disabled = true; setStatus("st1", "AI 讀檔中，約需 20～60 秒…");
+  const texts = state.files.filter(f => f.text).map(f => `【檔案：${f.name}】\n${f.text}`).join("\n\n");
+  const imgs = state.files.filter(f => f.blob).map(f => f.blob);
+  const prompt = `你是遠東集團採購處的案件整理助理。以下是一件採購案的送件資料（模擬資料）。請抽出重點，供六個部門（採購、財務、會計、國際事務、稽核、聯稽）會診使用。
+
+入口部門：${deptName($("entry").value)}
+目前階段：${$("stage").value}
+補充說明：${$("memo").value || "（無）"}
+
+可用的觸發標籤（只能從這份清單挑，挑所有符合的）：
+${ALL_TAGS.join("、")}
+
+送件資料：
+${texts || "（只有圖片，見附圖）"}
+
+只回覆一個 JSON 物件，格式：
+{"title":"案件名稱","item":"標的與數量","budget":"預算（含幣別，查無寫「未載明」）","stage":"目前階段","evaluation":"評選方式","vendors":[{"name":"廠商","price":"報價（含幣別）","currency":"報價幣別","incoterm":"貿易條件","payment":"付款條件","first_time":"是否首次交易","origin":"原產地","note":"重要備註"}],"tags":["觸發標籤"],"flags":["值得各部門注意的事實，每條一句，最多 8 條"]}
+所有文字用臺灣繁體中文。只根據資料，不要編造；資料沒有的欄位寫「未載明」。`;
+  try {
+    const out = await sample.json(prompt, {modelTier: "default", ...(imgs.length ? {images: imgs} : {})});
+    if (!out || !Array.isArray(out.vendors)) throw {code: "invalid_json"};
+    state.extracted = out;
+    state.tags = new Set((out.tags || []).filter(t => ALL_TAGS.includes(t)));
+    state.results = {}; renderDepts(); renderReport();
+    renderSummary(); $("s2").classList.remove("off"); $("bConsult").disabled = false;
+    setStatus("st1", "已抽取完成，請到步驟 2 確認。");
+    $("s2").scrollIntoView({behavior: "smooth", block: "start"});
+  } catch (e) { setStatus("st1", errCopy(e), true); }
+  finally { btn.disabled = false; }
+};
+function deptName(k) { return KB.depts.find(d => d.key === k)?.name || k; }
+function renderSummary() {
+  const x = state.extracted;
+  $("summary").innerHTML = `
+  <dl class="kv"><dt>案件</dt><dd>${esc(x.title)}</dd><dt>標的</dt><dd>${esc(x.item)}</dd><dt>預算</dt><dd>${esc(x.budget)}</dd><dt>評選方式</dt><dd>${esc(x.evaluation)}</dd><dt>入口</dt><dd>${esc(deptName($("entry").value))}・${esc($("stage").value)}</dd></dl>
+  <div class="tbl"><table><thead><tr><th>廠商</th><th>報價</th><th>貿易條件</th><th>付款條件</th><th>首次交易</th><th>原產地</th><th>備註</th></tr></thead><tbody>
+  ${x.vendors.map(v => `<tr><td>${esc(v.name)}</td><td>${esc(v.price)}</td><td>${esc(v.incoterm)}</td><td>${esc(v.payment)}</td><td>${esc(v.first_time)}</td><td>${esc(v.origin)}</td><td>${esc(v.note)}</td></tr>`).join("")}
+  </tbody></table></div>
+  ${x.flags?.length ? `<div><b>注意事項</b><ul class="flags">${x.flags.map(f => `<li>${esc(f)}</li>`).join("")}</ul></div>` : ""}
+  <div><b>觸發標籤</b>（深色＝已選；點一下可增減）<div class="tags" id="tagbox"></div></div>`;
+  renderTags();
+}
+function renderTags() {
+  const box = $("tagbox"); if (!box) return;
+  const sorted = [...ALL_TAGS].sort((a, b) => state.tags.has(b) - state.tags.has(a));
+  box.innerHTML = sorted.map(t => `<button type="button" class="tag${state.tags.has(t) ? " on" : ""}" aria-pressed="${state.tags.has(t)}">${esc(t)}</button>`).join("");
+  box.querySelectorAll("button").forEach(b => b.onclick = () => { const t = b.textContent; state.tags.has(t) ? state.tags.delete(t) : state.tags.add(t); renderTags(); });
+}
+
+/* ---------- 步驟 3：會診 ---------- */
+function matchRules(d) {
+  return d.rules.filter(r => r.tags.some(t => state.tags.has(t)) || r.tags.some(t => t.startsWith("（")));
+}
+function renderDepts() {
+  $("depts").innerHTML = KB.depts.map(d => {
+    const r = state.results[d.key];
+    const n = state.extracted ? matchRules(d).length : null;
+    const light = r?.light;
+    const body = !r ? `<p class="note">${state.running ? "判斷中…" : "等待送件"}</p>`
+      : r.error ? `<p class="status err">${esc(r.error)}</p>`
+      : `<p>${esc(r.conclusion)}</p>${r.suggestions?.length ? `<ul>${r.suggestions.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : ""}<div class="ids">依據：${esc((r.rules || []).join("、") || "—")}</div>`;
+    return `<article class="dept" style="--c:var(--c-${d.key})"><div class="hd"><b>${esc(d.name)}</b><small>${DEPT_META[d.key].island}</small><span class="lt ${light ? "lt-" + light : "lt-wait"}">${light || (state.running && !r ? "…" : "未回覆")}</span></div>${n !== null ? `<div class="match">規則比對：命中 ${n} 條／共 ${d.rules.length} 條</div>` : ""}${body}</article>`;
+  }).join("");
+}
+function caseBlock() {
+  const x = state.extracted;
+  return `案件重點（JSON）：${JSON.stringify({...x, tags: [...state.tags]})}\n\n補充說明：${$("memo").value || "（無）"}\n\n原始送件資料（節錄）：\n${state.files.filter(f => f.text).map(f => f.text).join("\n\n").slice(0, 24000)}`;
+}
+function deptPrompt(d, others) {
+  const hit = new Set(matchRules(d).map(r => r.id));
+  const rules = d.rules.map(r => `${hit.has(r.id) ? "★" : "・"}${r.id}｜${r.principle}｜${r.question}｜適用：${r.situation}｜${r.level}`).join("\n");
+  return `你代表遠東集團「${d.name}」參加 KYS（Know Your Supplier）跨部門採購會診。依「${d.name}」自己的規則，獨立判斷這件案子（模擬資料）。
+
+燈號定義（小組既定）：
+- 綠：允許。可以附建議事項。
+- 黃：本部門無其他意見（與本部門職掌無關或沒有要補充的）。
+- 紅：嚴重紅旗。必須處理後再送，暫不送報價分析。
+有需要處理但不到紅旗的事項，用「綠」並寫在建議裡。
+
+${d.name}的規則（★＝依觸發標籤比對命中，請優先檢查；其他條目若資料顯示成立也可引用）：
+${rules}
+
+${caseBlock()}
+${others ? `\n其他部門已回覆（供參考，仍須獨立判斷）：\n${others}\n` : ""}
+只回覆一個 JSON 物件：
+{"light":"綠|黃|紅","conclusion":"一句結論（40 字內）","suggestions":["具體建議，最多 4 條，每條一句"],"rules":["引用的規則編號"]}
+用臺灣繁體中文。只根據資料判斷，資料不足就寫「待確認」，不要編造。`;
+}
+async function askDept(d, others) {
+  state.results[d.key] = null; renderDepts();
+  try {
+    const out = await sample.json(deptPrompt(d, others), {modelTier: "default", cache: false});
+    const light = LIGHTS.includes(out?.light) ? out.light : null;
+    state.results[d.key] = light ? {light, conclusion: String(out.conclusion || ""), suggestions: (out.suggestions || []).map(String).slice(0, 4), rules: (out.rules || []).map(String)}
+      : {error: "回覆沒有有效燈號"};
+  } catch (e) { state.results[d.key] = {error: errCopy(e)}; }
+  renderDepts(); renderReport();
+}
+$("bConsult").onclick = async () => {
+  if (!state.tags.size) return setStatus("st2", "請至少選一個觸發標籤。", true);
+  const btn = $("bConsult"); btn.disabled = true; state.running = true; state.results = {};
+  $("s3").classList.remove("off"); renderDepts(); renderReport();
+  $("s3").scrollIntoView({behavior: "smooth", block: "start"});
+  setStatus("st2", "五個部門同步判斷中，稽核處最後回覆，約需 1～3 分鐘…");
+  const first = KB.depts.filter(d => d.key !== "aud");
+  await Promise.all(first.map(d => askDept(d)));
+  const others = first.map(d => { const r = state.results[d.key]; return r?.light ? `${d.name}：${r.light}｜${r.conclusion}` : `${d.name}：未回覆`; }).join("\n");
+  await askDept(KB.depts.find(d => d.key === "aud"), others);
+  state.running = false; renderDepts(); btn.disabled = false;
+  setStatus("st2", "會診完成，結果見步驟 3、4。");
+  $("s4").scrollIntoView({behavior: "smooth", block: "start"});
+};
+
+/* ---------- 步驟 4：會診單 ---------- */
+function reportRows() {
+  return KB.depts.map(d => { const r = state.results[d.key]; return {d, r, n: state.extracted ? matchRules(d).length : 0}; });
+}
+function renderReport() {
+  const rows = reportRows();
+  const done = rows.filter(x => x.r?.light);
+  const ready = done.length === rows.length;
+  $("bCsv").disabled = $("bMd").disabled = !ready;
+  if (!state.extracted || !Object.keys(state.results).length) { $("s4").classList.add("off"); $("report").innerHTML = `<p class="note">六燈到齊後，這裡會產出會診單。</p>`; return; }
+  $("s4").classList.remove("off");
+  const reds = done.filter(x => x.r.light === "紅");
+  const verdict = !ready ? "" : reds.length
+    ? `<div class="verdict bad">${reds.length} 個紅燈（${reds.map(x => x.d.name).join("、")}）：退回 ${esc(deptName($("entry").value))}，處理紅旗後再送會診，暫不送報價分析。</div>`
+    : `<div class="verdict ok">六燈到齊、沒有紅燈：可以送報價分析給長官，建議事項一併附上。</div>`;
+  $("report").innerHTML = `<div class="row"><div class="dots">${rows.map(x => `<i class="${x.r?.light || ""}" title="${esc(x.d.name)}"></i>`).join("")}</div><span>${done.length}／6 燈</span></div>${verdict}
+  <div class="tbl"><table><thead><tr><th>部門</th><th>燈號</th><th>結論</th><th>建議與後續</th><th>規則比對命中</th><th>AI 引用</th></tr></thead><tbody>
+  ${rows.map(x => `<tr><td>${esc(x.d.name)}</td><td>${x.r?.light ? `<span class="lt lt-${x.r.light}">${x.r.light}</span>` : "—"}</td><td>${esc(x.r?.conclusion || x.r?.error || "")}</td><td>${esc((x.r?.suggestions || []).join("；"))}</td><td>${x.n}</td><td>${esc((x.r?.rules || []).join("、"))}</td></tr>`).join("")}
+  </tbody></table></div>`;
+}
+function reportCsv() {
+  const q = s => `"${String(s ?? "").replace(/"/g, '""')}"`;
+  const x = state.extracted;
+  const head = [["遠東經緯島 會診單（模擬資料）"], ["案件", x.title], ["入口", deptName($("entry").value), $("stage").value], ["觸發標籤", [...state.tags].join("、")], [], ["部門", "燈號", "結論", "建議與後續", "規則比對命中", "AI 引用規則"]];
+  const body = reportRows().map(r => [r.d.name, r.r?.light, r.r?.conclusion, (r.r?.suggestions || []).join("；"), r.n, (r.r?.rules || []).join("、")]);
+  return "﻿" + [...head, ...body].map(r => r.map(q).join(",")).join("\r\n");
+}
+function reportMd() {
+  const x = state.extracted;
+  return `# 遠東經緯島 會診單（模擬資料）\n\n- 案件：${x.title}\n- 入口：${deptName($("entry").value)}・${$("stage").value}\n- 觸發標籤：${[...state.tags].join("、")}\n\n` +
+    reportRows().map(r => `## ${r.d.name}｜${r.r?.light || "—"}\n${r.r?.conclusion || ""}\n${(r.r?.suggestions || []).map(s => `- ${s}`).join("\n")}\n依據：${(r.r?.rules || []).join("、") || "—"}（規則比對命中 ${r.n} 條）\n`).join("\n");
+}
+async function save(filename, data) {
+  try { await downloads.save({filename, data}); setStatus("st4", `已存檔：${filename}`); }
+  catch (e) { setStatus("st4", e?.code === "cancelled" || e?.code === "declined" ? "已取消存檔。" : "存檔沒有完成，請再試一次。", e?.code !== "cancelled"); }
+}
+const stamp = () => new Date().toISOString().slice(0, 10).replace(/-/g, "");
+$("bCsv").onclick = () => save(`經緯島會診單_${stamp()}.csv`, reportCsv());
+$("bMd").onclick = () => save(`經緯島會診單_${stamp()}.md`, reportMd());
+$("bReset").onclick = () => {
+  Object.assign(state, {files: [], extracted: null, tags: new Set(), results: {}, running: false});
+  renderFiles(); renderDepts(); renderReport(); $("memo").value = "";
+  $("summary").innerHTML = `<p class="note">送件後，AI 會先讀檔，抽出重點並轉成觸發標籤。</p>`;
+  $("s2").classList.add("off"); $("s3").classList.add("off"); $("bConsult").disabled = true;
+  ["st1","st2","st4"].forEach(i => setStatus(i, "")); window.scrollTo({top: 0, behavior: "smooth"});
+};
+</script>
