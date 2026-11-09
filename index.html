@@ -121,7 +121,7 @@ th{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:500}
 .lbl img{width:20px;height:20px;border-radius:4px}
 .lbl .lamp{width:12px;height:12px;border-radius:50%;background:var(--line);box-shadow:0 0 0 2px var(--paper)}
 .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 0 10px}
-#auto{left:max(16px,env(safe-area-inset-left,0px));bottom:84px;width:min(480px,calc(100vw - 32px));padding:16px 18px;max-height:calc(100% - 200px);overflow:auto}
+#auto{left:max(16px,env(safe-area-inset-left,0px));bottom:84px;width:min(480px,calc(100vw - 32px));padding:16px 18px;max-height:calc(100% - 290px);overflow:auto}
 #auto.running{left:50%;transform:translateX(-50%);width:auto;max-width:calc(100vw - 32px);padding:10px 16px}
 #auto.running .hide-run{display:none}
 #auto.running .meter{margin:4px 0}
@@ -144,6 +144,18 @@ th{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:500}
 .rate .full{grid-column:1/-1}
 .rate-out{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--sky2);line-height:1.7;font-variant-numeric:tabular-nums}
 .rate-out ul{margin:4px 0 0;padding-left:18px}
+.chip[role=button]{cursor:pointer}
+.chip[role=button]:hover{border-color:var(--navy);color:var(--ink)}
+table.mini{border-collapse:collapse;width:100%;min-width:0;font-size:12px;margin:8px 0;font-variant-numeric:tabular-nums}
+table.mini th,table.mini td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left;line-height:1.45}
+.sub3{font-size:13px;margin:14px 0 2px;color:var(--muted);font-weight:500}
+.tally{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.lt{font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;color:#fff;white-space:nowrap}
+.lt-ok{background:var(--ok)}.lt-warn{background:var(--warn)}.lt-bad{background:var(--bad)}
+.rcard{border-top:1px solid var(--line);padding:8px 0}
+.rhead{display:flex;align-items:center;gap:6px}.rhead .lt{margin-left:auto}
+.rh{margin:4px 0 2px;font-weight:500}
+.rcard ul{margin:2px 0 0;padding-left:18px;font-size:calc(var(--fs) - 1px);color:var(--muted);line-height:1.6}
 @media (max-width:720px){
   #auto{bottom:84px;max-height:52%}
   .sim{display:none}
@@ -263,12 +275,6 @@ function quote(q){const cbm=q.L*q.W*q.H,r=RATES[q.origin],o={cbm,lines:[],hints:
   o.hints.push('可評估是否適用國內未產製機器設備的關稅減免（需事先申請，示範提醒）。');
   return o}
 const ORDER=['fin','acct','intl','aud','jaud'];
-const CASES={
- A:{name:'進口設備（劇本一個案）',sub:'日本設備・首次交易代理商・JPY 1.2 億',input:'JPY 120,000,000｜CIF 台中港｜30/60/10｜含日籍技師安裝｜海運 6.2 × 2.5 × 2.6 m、12,000 kg',
-   res:{fin:['ok','回收約 4.1 年可行；預付 30% 請附銀行保證函'],acct:['ok','允許；設備與安裝費分列，確認境外勞務扣繳'],intl:['ok',()=>`海運估約 ${fmt(quote(SHIP_A).total)}，超寬需平板櫃；建議加保或改 FOB`],aud:['bad','代理商資本額 NT$500 萬，與 NT$2,520 萬案件不相稱；需原廠授權與報價確認'],jaud:['ok','允許；U-16 首次交易即預付，另轉聯稽窗口確認']}},
- B:{name:'國內備品（既有廠商）',sub:'軸承組 20 組・NT$480,000・第 6 次交易',input:'NT$480,000（未稅）｜國內交貨到廠｜月結 60 天｜既有廠商，評鑑 A 級',
-   res:{fin:['warn','金額未達門檻，無其他意見'],acct:['warn','國內發票交易，無其他意見'],intl:['warn','非進口案，無其他意見'],aud:['ok','既有廠商評鑑 A 級，允許'],jaud:['ok','單價較前次 +2.1%，在合理範圍，允許']}}};
-const LNAME={ok:'綠燈',warn:'黃燈',bad:'紅燈'};
 
 /* ---------- theme ---------- */
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -507,15 +513,46 @@ function bindRate(){const g=i=>document.getElementById(i);const run=()=>{g('rPre
   g('rateOut').innerHTML=`<b>${RATES[q.origin].name} → ${PORTS[q.dest]}：約 ${fmt(r.total)}</b>（體積 ${r.cbm.toFixed(1)} m³）<ul>${r.lines.map(x=>`<li>${x}</li>`).join('')}</ul><b>國際事務處回饋</b><ul>${r.hints.map(x=>`<li>${x}</li>`).join('')}</ul>`};
   g('rateForm').addEventListener('input',run);run()}
 
-/* auto run: 一鍵會診 */
+const ALL=['proc','fin','acct','intl','jaud','aud'];
+const RT={done:{proc:1900,fin:2800,intl:3600,acct:4300,jaud:5100,aud:6900}};
+const CASES={
+ A:{name:'生產設備・三國廠商報價',sub:'中國／台灣／泰國廠・美金或人民幣・交期 6 個月',
+   input:'三家可選美金或人民幣報價｜交期約 6 個月｜付款 30／60／10｜中國、泰國廠報 CIF 台中港，可改 FOB',
+   table:`<table class="mini"><thead><tr><th>廠商</th><th>美金報價</th><th>人民幣報價</th><th>貿易條件</th></tr></thead><tbody>
+   <tr><td>中國廠（華東）</td><td>USD 780,000</td><td>RMB 5,600,000</td><td>CIF 台中／FOB 上海</td></tr>
+   <tr><td>台灣廠（台中）</td><td>USD 905,000</td><td>RMB 6,450,000</td><td>國內交貨到廠</td></tr>
+   <tr><td>泰國廠（春武里）</td><td>USD 820,000</td><td>RMB 5,900,000</td><td>CIF 台中／FOB 林查班</td></tr></tbody></table>`,
+   extra:`<h3 class="sub3">到廠成本比較（財務＋國際事務彙整，模擬）</h3><table class="mini"><thead><tr><th>廠商</th><th>較佳幣別</th><th>換算台幣</th><th>運保費</th><th>關稅 2.5%</th><th>到廠成本</th></tr></thead><tbody>
+   <tr><td>中國廠</td><td>美金</td><td>2,465 萬</td><td>21 萬</td><td>62 萬</td><td><b>2,548 萬</b></td></tr>
+   <tr><td>泰國廠</td><td>美金</td><td>2,591 萬</td><td>35 萬</td><td>66 萬</td><td>2,692 萬</td></tr>
+   <tr><td>台灣廠</td><td>人民幣</td><td>2,857 萬</td><td>—</td><td>—</td><td>2,857 萬</td></tr></tbody></table>
+   <p class="note">匯率以 6 個月遠期試算（模擬）：USD/TWD 31.60、CNY/TWD 4.43。關稅率、運費皆為示範值。</p>`,
+   res:{
+    proc:['ok','三家規格符合，以到廠成本比較中國廠最低',['請中國廠改報 FOB 上海，由我方安排運輸','台灣廠到廠成本高約 12%，可作議價籌碼']],
+    fin:['ok','ROI 合理，建議中國、泰國廠採美金報價',['投資約 NT$2,550 萬、年效益約 NT$600 萬，回收約 4.2 年（示範門檻 5 年內）','中國廠、泰國廠選美金，分別少付約 NT$16 萬、22 萬；台灣廠兩種幣別差不到 NT$3 萬，建議改請報新台幣','美金部位約 USD 78 萬、付款跨 6 個月，依避險政策於下單時預購遠期','預付 30% 約 NT$740 萬，須附銀行預付款保證函','收款帳戶戶名須與簽約主體一致，下單前以原留電話確認']],
+    acct:['warn','無其他意見',['單純設備買賣，不含境外勞務；發票與營業稅依一般規定處理']],
+    intl:['ok','建議改 FOB 自行安排運輸，並確認進口資格',['上海→台中海運約 NT$18 萬、林查班→台中約 NT$32 萬（含保險另計約 NT$3 萬）','中國廠 CIF 內含運費約 USD 1.8 萬（約 NT$57 萬），比自行安排高約 NT$36 萬','國內已有廠商產製（台灣廠），「國內未產製設備」免稅可能不適用；中國原產品可查 ECFA 早收清單','需確認該設備是否屬准許輸入的大陸物品，下單前取得確認']],
+    jaud:['warn','無其他意見',['比價家數 3 家，符合規定']],
+    aud:['bad','泰國廠與中國廠疑為同一集團',['兩家報價單格式相同，聯絡人 Email 網域一致','查證兩廠股權關係前，不宜視為三家比價；建議補邀其他廠商']]}},
+ B:{name:'國內備品（既有廠商）',sub:'軸承組 20 組・NT$480,000・第 6 次交易',input:'NT$480,000（未稅）｜國內交貨到廠｜月結 60 天｜既有廠商，評鑑 A 級',
+   res:{proc:['ok','程序完整',['單價較前次 +2.1%，在合理範圍']],fin:['warn','無其他意見',['金額未達門檻']],acct:['warn','無其他意見',['國內發票交易']],intl:['warn','無其他意見',['非進口案']],jaud:['ok','允許',['常態需求，建議改年度合約']],aud:['ok','允許',['既有廠商評鑑 A 級']]}},
+ C:{name:'日本設備（劇本一個案）',sub:'首次交易代理商・JPY 1.2 億・含安裝',input:'JPY 120,000,000｜CIF 台中港｜30/60/10｜含日籍技師安裝｜海運 6.2 × 2.5 × 2.6 m、12,000 kg',
+   res:{proc:['ok','比價與議價程序完整',['取得原廠授權書']],fin:['ok','回收約 4.1 年可行',['預付 30% 請附銀行保證函','日圓付款評估避險時點']],acct:['ok','允許',['設備與安裝費分列，確認境外勞務扣繳']],intl:['ok','建議加保或改 FOB',[()=>`海運估約 ${fmt(quote(SHIP_A).total)}，超寬需平板櫃`]],jaud:['ok','允許',['U-16 首次交易即預付，另轉窗口確認']],aud:['bad','代理商規模與案件不相稱',['代理商資本額 NT$500 萬，案件 NT$2,520 萬','需原廠授權與報價確認']]}}};
+const LNAME={ok:'綠燈',warn:'黃燈',bad:'紅燈'};
+let entry='proc';
+document.querySelectorAll('.entries .chip').forEach((ch,i)=>{const id=['proc','fin','acct','intl','aud','jaud'][i];ch.classList.remove('soon');ch.setAttribute('role','button');ch.tabIndex=0;ch.dataset.id=id;
+  const pick=()=>{entry=id;document.querySelectorAll('.entries .chip').forEach(c=>c.classList.toggle('on',c===ch));if(autoOn&&!timers.length)renderAuto()};ch.onclick=pick;ch.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}}});
+
+/* auto run: 一鍵會診（六部門同步、各自判斷） */
 const auto=document.getElementById('auto');let autoOn=false,autoCase='A',timers=[];
+const txt=t=>typeof t==='function'?t():t;
 function renderAuto(){const c=CASES[autoCase];
-  auto.innerHTML=`<div class="hide-run"><div class="step">一鍵會診　入口：採購處</div><h2>送出後，五個部門自動跑一圈</h2>
+  auto.innerHTML=`<div class="hide-run"><div class="step">一鍵會診　入口：${DM[entry].name}（可在左上角切換入口）</div><h2>送出後，六個部門同步各自判斷</h2>
   <div class="legend"><span><span class="light" style="background:var(--ok)"></span>綠燈：允許</span><span><span class="light" style="background:var(--warn)"></span>黃燈：無其他意見</span><span><span class="light" style="background:var(--bad)"></span>紅燈：嚴重紅旗</span></div>
   <div class="cases">${Object.entries(CASES).map(([k,v])=>`<button type="button" data-k="${k}" class="${k===autoCase?'on':''}">${v.name}<small>${v.sub}</small></button>`).join('')}</div>
-  <p class="note" style="margin:0">送件資料：${c.input}</p></div>
-  <div class="meter" id="meter">${ORDER.map(()=>'<i></i>').join('')}<span id="mCount">0／5</span></div>
-  <div id="mStatus" class="note">按「送出會診」開始，約 9 秒跑完。</div><div id="mRes"></div>
+  <p class="note" style="margin:0">送件資料：${c.input}</p>${c.table||''}</div>
+  <div class="meter" id="meter">${ALL.map(id=>`<i title="${DM[id].name}"></i>`).join('')}<span id="mCount">0／6</span></div>
+  <div id="mStatus" class="note">按「送出會診」開始。各部門同時收到案件，判斷完成就回覆；稽核處最後把關。</div><div id="mRes"></div>
   <div class="nav hide-run"><button type="button" class="primary" id="aRun">送出會診</button><button type="button" id="aEnd">結束</button></div>`;
   auto.querySelectorAll('.cases button').forEach(b=>b.onclick=()=>{if(timers.length)return;autoCase=b.dataset.k;clearLamps();setLit([]);renderAuto()});
   auto.querySelector('#aRun').onclick=runAuto;auto.querySelector('#aEnd').onclick=stopAuto}
@@ -525,16 +562,18 @@ function runAuto(){timers.forEach(clearTimeout);timers=[];renderAuto();clearLamp
   const c=CASES[autoCase],k=reduce?.3:1,at=(ms,f)=>timers.push(setTimeout(f,ms*k));
   auto.classList.add('running');setShift();
   const dots=auto.querySelectorAll('#meter i'),cnt=auto.querySelector('#mCount'),st=auto.querySelector('#mStatus'),btn=auto.querySelector('#aRun');btn.disabled=true;
-  setLit(['proc'],'proc');st.textContent='採購處送件中……';
+  setLit([entry],entry);st.textContent=`${DM[entry].name}送件到經緯廣場……`;
   flyTo=null;fly(new THREE.Vector3(0,0,0),0,0);flyTo.toP=new THREE.Vector3(0,50,30);
-  ORDER.forEach((id,i)=>{
-    at(600+i*1500,()=>{setLit(['proc',...ORDER.slice(0,i+1)],id);st.textContent=`經緯廣場派案給 ${DM[id].name}，比對規則中……`});
-    at(1600+i*1500,()=>{const [l]=c.res[id];setLamp(id,l);dots[i].style.background=css('--'+l);dots[i].classList.add('pop');setTimeout(()=>dots[i].classList.remove('pop'),350);cnt.textContent=`${i+1}／5${i===4?'　五燈全亮':''}`});
-  });
-  at(8300,()=>{setLit(['proc',...ORDER],'proc');st.textContent='五個部門意見回傳採購處。'});
-  at(9000,()=>{const rows=ORDER.map(id=>{const [l,t]=c.res[id];return `<span class="dn"><span class="light" style="background:${DM[id].color}"></span>${DM[id].name}</span><span class="dn"><span class="light" style="background:var(--${l})"></span>${LNAME[l]}</span><span>${typeof t==='function'?t():t}</span>`}).join('');
-    const reds=ORDER.filter(id=>c.res[id][0]==='bad').length;
-    auto.querySelector('#mRes').innerHTML=`<div class="res">${rows}</div><div class="verdict">${reds?`${reds} 個紅燈：退回採購處，處理紅旗後再送會診。`:'沒有紅燈：可以進入議價，綠燈的附帶建議請寫入議價說明。'}</div>`;
+  let n=0;const done=new Set();
+  at(900,()=>{setLit(ALL,null);st.textContent='經緯廣場同時派案給六個部門，各自比對規則中……'});
+  ALL.forEach((id,i)=>at(RT.done[id],()=>{const [l]=c.res[id];setLamp(id,l);done.add(id);n++;
+    dots[i].style.background=css('--'+l);dots[i].classList.add('pop');setTimeout(()=>dots[i].classList.remove('pop'),350);
+    cnt.textContent=`${n}／6${n===6?'　六燈到齊':''}`;st.textContent=id==='aud'?'稽核處最後把關完成。':`${DM[id].name}已回覆${LNAME[l]}，其他部門仍在判斷……`}));
+  at(7700,()=>{setLit([entry],entry);st.textContent=`六個部門意見回傳${DM[entry].name}。`});
+  at(8400,()=>{const tally={ok:0,warn:0,bad:0};ALL.forEach(id=>tally[c.res[id][0]]++);
+    const rows=ALL.map(id=>{const [l,h,tips]=c.res[id];return `<div class="rcard"><div class="rhead"><span class="light" style="background:${DM[id].color}"></span><b>${DM[id].name}</b><span class="lt lt-${l}">${LNAME[l]}</span></div><div class="rh">${txt(h)}</div>${tips&&tips.length?`<ul>${tips.map(t=>`<li>${txt(t)}</li>`).join('')}</ul>`:''}</div>`}).join('');
+    auto.querySelector('#mRes').innerHTML=`<div class="tally"><span class="lt lt-ok">${tally.ok} 綠</span><span class="lt lt-warn">${tally.warn} 黃</span><span class="lt lt-bad">${tally.bad} 紅</span><span class="note">各部門獨立判斷，燈號之間沒有先後關係</span></div>
+      <div class="verdict">${tally.bad?`${tally.bad} 個紅燈：退回${DM[entry].name}，處理紅旗後再送會診，暫不送報價分析。`:'沒有紅燈：可以送報價分析，綠燈的建議請寫入議價說明。'}</div>${rows}${c.extra||''}`;
     auto.classList.remove('running');setShift();btn.disabled=false;btn.textContent='再跑一次';timers=[]});
 }
 
