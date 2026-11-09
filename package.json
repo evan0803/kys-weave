@@ -4,7 +4,7 @@
   "description": "遠東經緯島 KYS 跨部門會診平台原型",
   "scripts": {
     "test": "node tools/test/smoke.js",
-    "knowledge": "python3 tools/knowledge/build_xlsx.py"
+    "knowledge": "python tools/knowledge/build_xlsx.py"
   },
   "devDependencies": {
     "three": "0.147.0"
