@@ -1,6 +1,6 @@
 """知識層：在部門原文（kys_content3.DEPTS，不改）之上，疊加 2026-11-13 新增的欄位。
 
-疊加順序：部門原文 → 預設值（由 level／step 推得）→ 暫擬內容（review_drafts.py ＋ data/review_drafts_jaud.json）
+疊加順序：部門原文 → 預設值（由 level／step 推得）→ 暫擬內容（review_drafts.py）
 → 確認稿回收結果（data/kb_review_state.json，由 merge_review.py 產生；不存在時略過）。
 
 狀態檔格式（供 merge_review.py 寫入）：
@@ -27,13 +27,8 @@ CAT = {"一般": "一般檢查", "進階": "進一步建議"}
 
 
 def load_drafts():
-    """回傳 {編號: {trigger, impact_type, impact, consequence, what, to, when}}，含聯稽私有檔。"""
-    p = DATA / "review_drafts_jaud.json"
-    if not p.exists():
-        sys.exit(f"缺少 {p.relative_to(ROOT)}（聯稽暫擬，只放本機）。少了它進一步建議會從 22 條變 14 條。")
-    adv = {k: dict(zip(RD.ADV_KEYS, v)) for k, v in RD.ADV.items()}
-    adv.update(json.loads(p.read_text(encoding="utf-8")))
-    return adv
+    """回傳 {編號: {trigger, impact_type, impact, consequence, what, to, when}}。"""
+    return {k: dict(zip(RD.ADV_KEYS, v)) for k, v in RD.ADV.items()}
 
 
 def load_state():
