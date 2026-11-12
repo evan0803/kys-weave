@@ -537,7 +537,7 @@ function budgetPromptLine(d) {
 }
 function deptPrompt(d, others) {
   const hit = new Set(matchRules(d).map(r => r.id));
-  const rules = d.rules.map(r => `${hit.has(r.id) ? "★" : "・"}${r.id}｜${r.principle}｜${r.question}｜適用：${r.situation}｜${r.level}${r.impact ? `｜影響：${r.impact}` : ""}${r.action ? `｜標準建議動作：${r.action}` : ""}`).join("\n");
+  const rules = d.rules.map(r => `${hit.has(r.id) ? "★" : "・"}${r.id}｜${r.principle}｜${r.question}｜適用：${r.situation}｜${r.level}${r.impact ? `｜影響：${r.impact}` : ""}${r.action ? `｜標準建議動作：${r.action.what}（對誰：${r.action.to}；時點：${r.action.when}）` : ""}`).join("\n");
   return `你代表遠東集團「${d.name}」參加 KYS（Know Your Supplier）跨部門採購會診。依「${d.name}」自己的規則，獨立看這件案子（模擬資料），提出意見給採購處參考。
 各部門只提意見，是否採納、何時送出由採購處決定，所以用詞要客氣、具體，不要寫「禁止」「退回」「不得」。
 採購同仁時間有限：只講最重要的一件事，要能直接照做。
