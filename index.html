@@ -235,27 +235,27 @@ const STEPS=[
   html:()=>`<p>廣場比對各部門的觸發條件，命中以下標籤，五個部門的經線同時亮起：</p>
   <div class="tags"><span>外幣計價</span><span>預付 30%</span><span>投資效益</span><span>含境外勞務</span><span>進口 CIF</span><span>多國零件</span><span>首次交易</span><span>代理商報價</span></div>
   <p class="note">標籤來自各部門規則模組的「適用情境」欄。部門新增規則，派案邏輯就跟著擴充。</p>`},
- {focus:'fin',lit:['fin'],title:'財務處：效益與資金',kicker:'步驟 3／8　財務金庫回覆',light:'ok',
+ {focus:'fin',lit:['fin'],title:'財務處：效益與資金',kicker:'步驟 3／8　財務金庫回覆',light:'warn',
   html:()=>`<ul><li>模擬試算：NT$25,200,000 ÷ 年節省 NT$6,200,000 ≈ 回收 4.1 年，低於示範門檻 5 年，<b>可行</b>；但節省金額請使用單位附上計算依據。</li><li>預付 30%（約 NT$7,560,000），建議要求銀行預付款保證函。</li><li>三筆日圓付款跨 8 個月，建議下單時同步評估避險時點。</li></ul>`},
- {focus:'acct',lit:['acct'],title:'會計處：稅務與認定',kicker:'步驟 4／8　會計帳房回覆',light:'ok',
+ {focus:'acct',lit:['acct'],title:'會計處：稅務與認定',kicker:'步驟 4／8　會計帳房回覆',light:'warn',
   html:()=>`<ul><li>日籍技師來台安裝屬境外勞務，請確認就源扣繳義務及租稅協定是否適用。</li><li>建議報價把設備款與安裝費分列，並寫明含稅或淨額、稅負由誰負擔。</li><li>安裝試車費可隨設備資本化。</li></ul>`},
- {focus:'intl',lit:['intl'],title:'國際事務處：物流與關務',kicker:'步驟 5／8　國際航港回覆',light:'ok',
+ {focus:'intl',lit:['intl'],title:'國際事務處：物流與關務',kicker:'步驟 5／8　國際航港回覆',light:'warn',
   html:()=>{const q=quote(SHIP_A);return `<p>採購送入物流資料：未曾購買、名古屋港 → 台中港、海運、6.2 × 2.5 × 2.6 m、12,000 kg。</p>
   <div class="rate-out"><b>依國際事務處費率表估算（模擬）：約 ${fmt(q.total)}</b><ul>${q.lines.map(x=>`<li>${x}</li>`).join('')}</ul></div>
   <ul>${q.hints.map(x=>`<li>${x}</li>`).join('')}<li>CIF 的風險在裝船時就移轉給我方，賣方投保通常只到最低條件；建議要求加保，或改 FOB 由我方投保。</li></ul>`}},
  {focus:'aud',lit:['aud'],title:'稽核處：廠商資格與財務',kicker:'步驟 6／8　稽核瞭望台回覆',light:'bad',
-  html:()=>`<ul><li>代理商首次交易，需原廠授權書，並向原廠確認代理關係。</li><li>模擬查核：代理商設立 3 年、資本額 NT$5,000,000，相對 NT$2,520 萬的案件偏小，列為<b>紅燈</b>。</li><li>建議請原廠出具報價確認書，或評估改由原廠直接交易；決標說明須附比價紀錄。</li></ul>`},
- {focus:'jaud',lit:['jaud'],title:'聯稽：內控原則把關',kicker:'步驟 7／8　聯稽明鏡堂回覆',light:'ok',
-  html:()=>`<p>命中 4 條原則：</p><ul><li>U-15 新廠商資格審查：匯款帳戶戶名須與代理商名稱一致。</li><li><b>U-16 首次交易多確認一層（進階）</b>：首次交易即預付 30%，轉聯稽窗口會診。</li><li>U-20 簽訂書面合約：驗收、保固、逾期罰則需寫入。</li><li>U-34 預付款核准與沖銷：驗收後須沖銷，不得長期掛帳。</li></ul>`},
+  html:()=>`<ul><li>代理商首次交易，需原廠授權書，並向原廠確認代理關係。</li><li>模擬查核：代理商設立 3 年、資本額 NT$5,000,000，相對 NT$2,520 萬的案件偏小，<b>強烈建議</b>先確認。</li><li>建議請原廠出具報價確認書，或評估改由原廠直接交易；決標說明須附比價紀錄。</li></ul>`},
+ {focus:'jaud',lit:['jaud'],title:'聯稽：內控原則把關',kicker:'步驟 7／8　聯稽明鏡堂回覆',light:'warn',
+  html:()=>`<p>命中 4 條原則：</p><ul><li>U-15 新廠商資格審查：匯款帳戶戶名須與代理商名稱一致。</li><li><b>U-16 首次交易多確認一層（進階）</b>：首次交易即預付 30%，轉聯稽窗口會診。</li><li>U-20 簽訂書面合約：驗收、保固、逾期罰則需寫入。</li><li>U-34 預付款核准與沖銷：建議驗收後即沖銷，避免長期掛帳。</li></ul>`},
  {focus:'plaza',lit:['proc','fin','acct','intl','aud','jaud'],title:'採購處彙整：會診單完成',kicker:'步驟 8／8　回到經緯廣場',
   html:()=>`<p>六條線交織成一塊布。採購處依會診意見調整議價條件：</p><ul><li>預付款改以銀行保證函擔保</li><li>報價分列設備與安裝費，合約寫明稅負</li><li>要求加保或改 FOB</li><li>取得原廠授權書與報價確認</li><li>下單時同步啟動避險評估</li></ul><p class="note">按「看會診單」可看到各部門的燈號與後續動作。</p>`,report:true}
 ];
 const REPORT=[
- ['fin','綠','回收 4.1 年可行；預付 30% 需保證函；日圓付款需評估避險','使用單位補效益依據；廠商提供保證函'],
- ['acct','綠','境外勞務扣繳待確認；價款需分列','報價分列；合約寫明稅負'],
- ['intl','綠','CIF 保險條件偏低；稅則與原產地待確認','加保或改 FOB；取得原產地證明'],
+ ['fin','黃','回收 4.1 年可行；預付 30% 需保證函；日圓付款需評估避險','使用單位補效益依據；廠商提供保證函'],
+ ['acct','黃','境外勞務扣繳待確認；價款需分列','報價分列；合約寫明稅負'],
+ ['intl','黃','CIF 保險條件偏低；稅則與原產地待確認','加保或改 FOB；取得原產地證明'],
  ['aud','紅','代理商規模與案件不相稱','原廠授權與報價確認；評估原廠直接交易'],
- ['jaud','綠','允許；U-16 進階條件命中','轉聯稽窗口確認；預付款驗收後沖銷'],
+ ['jaud','黃','首次交易即預付，U-16 進階條件命中','轉聯稽窗口確認；預付款驗收後沖銷'],
  ['proc','—','彙整意見並調整議價條件','更新議價說明，附會診單']
 ];
 
@@ -528,16 +528,16 @@ const CASES={
    <tr><td>台灣廠</td><td>人民幣</td><td>2,857 萬</td><td>—</td><td>—</td><td>2,857 萬</td></tr></tbody></table>
    <p class="note">匯率以 6 個月遠期試算（模擬）：USD/TWD 31.60、CNY/TWD 4.43。關稅率、運費皆為示範值。</p>`,
    res:{
-    proc:['ok','三家規格符合，以到廠成本比較中國廠最低',['請中國廠改報 FOB 上海，由我方安排運輸','台灣廠到廠成本高約 12%，可作議價籌碼']],
-    fin:['ok','ROI 合理，建議中國、泰國廠採美金報價',['投資約 NT$2,550 萬、年效益約 NT$600 萬，回收約 4.2 年（示範門檻 5 年內）','中國廠、泰國廠選美金，分別少付約 NT$16 萬、22 萬；台灣廠兩種幣別差不到 NT$3 萬，建議改請報新台幣','美金部位約 USD 78 萬、付款跨 6 個月，依避險政策於下單時預購遠期','預付 30% 約 NT$740 萬，須附銀行預付款保證函','收款帳戶戶名須與簽約主體一致，下單前以原留電話確認']],
-    acct:['warn','無其他意見',['單純設備買賣，不含境外勞務；發票與營業稅依一般規定處理']],
-    intl:['ok','建議改 FOB 自行安排運輸，並確認進口資格',['上海→台中海運約 NT$18 萬、林查班→台中約 NT$32 萬（含保險另計約 NT$3 萬）','中國廠 CIF 內含運費約 USD 1.8 萬（約 NT$57 萬），比自行安排高約 NT$36 萬','國內已有廠商產製（台灣廠），「國內未產製設備」免稅可能不適用；中國原產品可查 ECFA 早收清單','需確認該設備是否屬准許輸入的大陸物品，下單前取得確認']],
-    jaud:['warn','無其他意見',['比價家數 3 家，符合規定']],
-    aud:['bad','泰國廠與中國廠疑為同一集團',['兩家報價單格式相同，聯絡人 Email 網域一致','查證兩廠股權關係前，不宜視為三家比價；建議補邀其他廠商']]}},
+    proc:['warn','三家規格符合，以到廠成本比較中國廠最低',['請中國廠改報 FOB 上海，由我方安排運輸','台灣廠到廠成本高約 12%，可作議價籌碼']],
+    fin:['warn','ROI 合理，建議中國、泰國廠採美金報價',['投資約 NT$2,550 萬、年效益約 NT$600 萬，回收約 4.2 年（示範門檻 5 年內）','中國廠、泰國廠選美金，分別少付約 NT$16 萬、22 萬；台灣廠兩種幣別差不到 NT$3 萬，建議改請報新台幣','美金部位約 USD 78 萬、付款跨 6 個月，依避險政策於下單時預購遠期','預付 30% 約 NT$740 萬，須附銀行預付款保證函','收款帳戶戶名須與簽約主體一致，下單前以原留電話確認']],
+    acct:['ok','無意見',['單純設備買賣，不含境外勞務；發票與營業稅依一般規定處理']],
+    intl:['warn','建議改 FOB 自行安排運輸，並確認進口資格',['上海→台中海運約 NT$18 萬、林查班→台中約 NT$32 萬（含保險另計約 NT$3 萬）','中國廠 CIF 內含運費約 USD 1.8 萬（約 NT$57 萬），比自行安排高約 NT$36 萬','國內已有廠商產製（台灣廠），「國內未產製設備」免稅可能不適用；中國原產品可查 ECFA 早收清單','需確認該設備是否屬准許輸入的大陸物品，下單前取得確認']],
+    jaud:['ok','無意見',['比價家數 3 家，符合規定']],
+    aud:['bad','泰國廠與中國廠疑為同一集團',['兩家報價單格式相同，聯絡人 Email 網域一致','強烈建議先查證兩廠股權關係；確認前可考慮補邀其他廠商，以維持三家比價']]}},
  B:{name:'國內備品（既有廠商）',sub:'軸承組 20 組・NT$480,000・第 6 次交易',input:'NT$480,000（未稅）｜國內交貨到廠｜月結 60 天｜既有廠商，評鑑 A 級',
-   res:{proc:['ok','程序完整',['單價較前次 +2.1%，在合理範圍']],fin:['warn','無其他意見',['金額未達門檻']],acct:['warn','無其他意見',['國內發票交易']],intl:['warn','無其他意見',['非進口案']],jaud:['ok','允許',['常態需求，建議改年度合約']],aud:['ok','允許',['既有廠商評鑑 A 級']]}},
+   res:{proc:['ok','無意見',['程序完整；單價較前次 +2.1%，在合理範圍']],fin:['ok','無意見',['金額未達門檻']],acct:['ok','無意見',['國內發票交易']],intl:['ok','無意見',['非進口案']],jaud:['warn','常態需求，建議討論改年度合約',['年度合約可減少重複詢價']],aud:['ok','無意見',['既有廠商評鑑 A 級']]}},
  C:{name:'日本設備（劇本一個案）',sub:'首次交易代理商・JPY 1.2 億・含安裝',input:'JPY 120,000,000｜CIF 台中港｜30/60/10｜含日籍技師安裝｜海運 6.2 × 2.5 × 2.6 m、12,000 kg',
-   res:{proc:['ok','比價與議價程序完整',['取得原廠授權書']],fin:['ok','回收約 4.1 年可行',['預付 30% 請附銀行保證函','日圓付款評估避險時點']],acct:['ok','允許',['設備與安裝費分列，確認境外勞務扣繳']],intl:['ok','建議加保或改 FOB',[()=>`海運估約 ${fmt(quote(SHIP_A).total)}，超寬需平板櫃`]],jaud:['ok','允許',['U-16 首次交易即預付，另轉窗口確認']],aud:['bad','代理商規模與案件不相稱',['代理商資本額 NT$500 萬，案件 NT$2,520 萬','需原廠授權與報價確認']]}}};
+   res:{proc:['warn','程序完整，建議補原廠授權書',['請代理商提供原廠授權書']],fin:['warn','回收約 4.1 年可行，資金面有兩項建議',['預付 30% 請附銀行保證函','日圓付款評估避險時點']],acct:['warn','建議價款分列並確認扣繳',['設備與安裝費分列，確認境外勞務扣繳']],intl:['warn','建議加保或改 FOB',[()=>`海運估約 ${fmt(quote(SHIP_A).total)}，超寬需平板櫃`]],jaud:['warn','首次交易即預付，建議多確認一層',['U-16 進階條件命中，可轉聯稽窗口確認']],aud:['bad','代理商規模與案件不相稱',['代理商資本額 NT$500 萬，案件 NT$2,520 萬','強烈建議取得原廠授權與報價確認']]}}};
 const LNAME={ok:'綠燈',warn:'黃燈',bad:'紅燈'};
 let entry='proc';
 document.querySelectorAll('.entries .chip').forEach((ch,i)=>{const id=['proc','fin','acct','intl','aud','jaud'][i];ch.classList.remove('soon');ch.setAttribute('role','button');ch.tabIndex=0;ch.dataset.id=id;
@@ -548,11 +548,11 @@ const auto=document.getElementById('auto');let autoOn=false,autoCase='A',timers=
 const txt=t=>typeof t==='function'?t():t;
 function renderAuto(){const c=CASES[autoCase];
   auto.innerHTML=`<div class="hide-run"><div class="step">一鍵會診　入口：${DM[entry].name}（可在左上角切換入口）</div><h2>送出後，六個部門同步各自判斷</h2>
-  <div class="legend"><span><span class="light" style="background:var(--ok)"></span>綠燈：允許</span><span><span class="light" style="background:var(--warn)"></span>黃燈：無其他意見</span><span><span class="light" style="background:var(--bad)"></span>紅燈：嚴重紅旗</span></div>
+  <div class="legend"><span><span class="light" style="background:var(--ok)"></span>綠燈：無意見</span><span><span class="light" style="background:var(--warn)"></span>黃燈：建議討論或補充</span><span><span class="light" style="background:var(--bad)"></span>紅燈：強烈建議</span></div>
   <div class="cases">${Object.entries(CASES).map(([k,v])=>`<button type="button" data-k="${k}" class="${k===autoCase?'on':''}">${v.name}<small>${v.sub}</small></button>`).join('')}</div>
   <p class="note" style="margin:0">送件資料：${c.input}</p>${c.table||''}</div>
   <div class="meter" id="meter">${ALL.map(id=>`<i title="${DM[id].name}"></i>`).join('')}<span id="mCount">0／6</span></div>
-  <div id="mStatus" class="note">按「送出會診」開始。各部門同時收到案件，判斷完成就回覆；稽核處最後把關。</div><div id="mRes"></div>
+  <div id="mStatus" class="note">按「送出會診」開始。各部門同時收到案件，判斷完成就回覆意見；稽核處最後回覆。</div><div id="mRes"></div>
   <div class="nav hide-run"><button type="button" class="primary" id="aRun">送出會診</button><button type="button" id="aEnd">結束</button></div>`;
   auto.querySelectorAll('.cases button').forEach(b=>b.onclick=()=>{if(timers.length)return;autoCase=b.dataset.k;clearLamps();setLit([]);renderAuto()});
   auto.querySelector('#aRun').onclick=runAuto;auto.querySelector('#aEnd').onclick=stopAuto}
@@ -568,12 +568,12 @@ function runAuto(){timers.forEach(clearTimeout);timers=[];renderAuto();clearLamp
   at(900,()=>{setLit(ALL,null);st.textContent='經緯廣場同時派案給六個部門，各自比對規則中……'});
   ALL.forEach((id,i)=>at(RT.done[id],()=>{const [l]=c.res[id];setLamp(id,l);done.add(id);n++;
     dots[i].style.background=css('--'+l);dots[i].classList.add('pop');setTimeout(()=>dots[i].classList.remove('pop'),350);
-    cnt.textContent=`${n}／6${n===6?'　六燈到齊':''}`;st.textContent=id==='aud'?'稽核處最後把關完成。':`${DM[id].name}已回覆${LNAME[l]}，其他部門仍在判斷……`}));
+    cnt.textContent=`${n}／6${n===6?'　六燈到齊':''}`;st.textContent=id==='aud'?'稽核處最後回覆完成。':`${DM[id].name}已回覆${LNAME[l]}，其他部門仍在判斷……`}));
   at(7700,()=>{setLit([entry],entry);st.textContent=`六個部門意見回傳${DM[entry].name}。`});
   at(8400,()=>{const tally={ok:0,warn:0,bad:0};ALL.forEach(id=>tally[c.res[id][0]]++);
     const rows=ALL.map(id=>{const [l,h,tips]=c.res[id];return `<div class="rcard"><div class="rhead"><span class="light" style="background:${DM[id].color}"></span><b>${DM[id].name}</b><span class="lt lt-${l}">${LNAME[l]}</span></div><div class="rh">${txt(h)}</div>${tips&&tips.length?`<ul>${tips.map(t=>`<li>${txt(t)}</li>`).join('')}</ul>`:''}</div>`}).join('');
-    auto.querySelector('#mRes').innerHTML=`<div class="tally"><span class="lt lt-ok">${tally.ok} 綠</span><span class="lt lt-warn">${tally.warn} 黃</span><span class="lt lt-bad">${tally.bad} 紅</span><span class="note">各部門獨立判斷，燈號之間沒有先後關係</span></div>
-      <div class="verdict">${tally.bad?`${tally.bad} 個紅燈：退回${DM[entry].name}，處理紅旗後再送會診，暫不送報價分析。`:'沒有紅燈：可以送報價分析，綠燈的建議請寫入議價說明。'}</div>${rows}${c.extra||''}`;
+    auto.querySelector('#mRes').innerHTML=`<div class="tally"><span class="lt lt-ok">${tally.ok} 綠</span><span class="lt lt-warn">${tally.warn} 黃</span><span class="lt lt-bad">${tally.bad} 紅</span><span class="note">各部門獨立提意見，是否採納由採購處決定</span></div>
+      <div class="verdict">${tally.bad?`${tally.bad} 個部門強烈建議先處理${tally.warn?`，另有 ${tally.warn} 個部門建議討論`:''}。是否調整、何時送報價分析，由採購處決定。`:tally.warn?`沒有強烈建議事項；${tally.warn} 個部門建議討論或補充，採購處可參考後送報價分析。`:'六個部門都沒有意見：可以送報價分析。'}</div>${rows}${c.extra||''}`;
     auto.classList.remove('running');setShift();btn.disabled=false;btn.textContent='再跑一次';timers=[]});
 }
 
@@ -607,8 +607,8 @@ function showReport(){const c={紅:'var(--bad)',黃:'var(--warn)',綠:'var(--ok)
   <div class="tbl"><table><thead><tr><th>部門</th><th>燈號</th><th>重點意見</th><th>後續動作</th></tr></thead><tbody>
   ${REPORT.map(r=>`<tr><td><span class="light" style="background:${DM[r[0]].color}"></span>${DM[r[0]].name}</td><td>${c[r[1]]?`<span class="light" style="background:${c[r[1]]}"></span>`:''}${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}
   </tbody></table></div>
-  <div class="verdict">1 個紅燈：退回採購處，補齊原廠授權與報價確認後再送會診。</div>
-  <p class="note">綠燈＝允許（可附建議）；黃燈＝無其他意見；紅燈＝嚴重紅旗。燈號與金額皆為模擬。</p>
+  <div class="verdict">稽核處強烈建議先補齊原廠授權與報價確認；另有 4 個部門建議討論。是否調整由採購處決定。</div>
+  <p class="note">綠燈＝無意見；黃燈＝建議討論或補充資訊；紅燈＝強烈建議（事項較嚴重）。各部門只提意見，由採購處決定。燈號與金額皆為模擬。</p>
   <div class="nav"><button type="button" class="primary" id="rClose">關閉</button></div>`;
   rep.hidden=false;rep.querySelector('#rClose').onclick=()=>rep.hidden=true}
 rep.addEventListener('click',e=>{if(e.target===rep)rep.hidden=true});

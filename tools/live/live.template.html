@@ -1,193 +1,352 @@
 <title>經緯島實測會診台</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&display=swap">
 <style>
-/* 版面：單欄工作流（送件 → 抽重點 → 六部門會診 → 會診單），每一步一張工作卡；六部門結果用色條區分 */
+/* 版面：頂部四步驟進度列；下方四張工作卡（送件 → AI 整理重點 → 經緯廣場六島會診 → 會診單）。部門以經緯島插畫識別，燈號＝顏色＋符號＋文字 */
 :root{
-  --bg:#eef2f5; --paper:#ffffff; --ink:#1d2a36; --muted:#5d6b78; --line:#d3dbe2; --soft:#e3eaf0;
-  --navy:#16324f; --accent:#1b7f9e; --on-accent:#ffffff;
-  --c-proc:#2a9d8f; --c-fin:#c27c12; --c-acct:#4f8a3c; --c-intl:#2f6fb5; --c-aud:#c2475b; --c-jaud:#7a55b0;
-  --ok:#2f8a4f; --warn:#b98309; --bad:#c2475b; --ok-bg:#e4f3e9; --warn-bg:#fbf1d9; --bad-bg:#fae3e6;
+  --bg:#eef2f5; --paper:#ffffff; --ink:#1d2a36; --muted:#4f5d6a; --line:#d3dbe2; --soft:#f6f8fa; --sky:#dfe9f1;
+  --navy:#16324f; --accent:#1b6f8a; --on-accent:#ffffff;
+  --g-bg:#e2f2e7; --g-fg:#22663a; --g-dot:#2f8a4f;
+  --y-bg:#fbefcf; --y-fg:#6e4f05; --y-dot:#b98309;
+  --r-bg:#fae3e6; --r-fg:#8f2335; --r-dot:#c2475b;
+  --o-bg:#fdf0e6; --o-line:#e3b08a; --o-fg:#7a3412;
+  --sim-bg:#fbf1d9; --sim-line:#c99a2e; --sim-fg:#6e4f05;
   --f-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
-  --f-mono:ui-monospace,"Cascadia Mono",Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f1a26; --paper:#17222e; --ink:#e6edf3; --muted:#9aabba; --line:#2a3a4b; --soft:#1f2d3b;
+  --bg:#0f1a26; --paper:#17222e; --ink:#e6edf3; --muted:#a3b2c0; --line:#2a3a4b; --soft:#1d2a37; --sky:#1b2b3c;
   --navy:#9cc7e6; --accent:#4fb8d6; --on-accent:#0f1a26;
-  --ok:#5cc282; --warn:#e3b341; --bad:#f07587; --ok-bg:#16301f; --warn-bg:#33290f; --bad-bg:#3a1a20; color-scheme:dark}}
+  --g-bg:#16301f; --g-fg:#7fd49c; --g-dot:#3f9e60; --y-bg:#33290f; --y-fg:#f0c75e; --y-dot:#c99a1a;
+  --r-bg:#3a1a20; --r-fg:#f59aa7; --r-dot:#d4566a; --o-bg:#3a2516; --o-line:#8a5a35; --o-fg:#f4b98c;
+  --sim-bg:#33290f; --sim-line:#8a6d1f; --sim-fg:#f0c75e; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0f1a26; --paper:#17222e; --ink:#e6edf3; --muted:#9aabba; --line:#2a3a4b; --soft:#1f2d3b;
+  --bg:#0f1a26; --paper:#17222e; --ink:#e6edf3; --muted:#a3b2c0; --line:#2a3a4b; --soft:#1d2a37; --sky:#1b2b3c;
   --navy:#9cc7e6; --accent:#4fb8d6; --on-accent:#0f1a26;
-  --ok:#5cc282; --warn:#e3b341; --bad:#f07587; --ok-bg:#16301f; --warn-bg:#33290f; --bad-bg:#3a1a20; color-scheme:dark}
+  --g-bg:#16301f; --g-fg:#7fd49c; --g-dot:#3f9e60; --y-bg:#33290f; --y-fg:#f0c75e; --y-dot:#c99a1a;
+  --r-bg:#3a1a20; --r-fg:#f59aa7; --r-dot:#d4566a; --o-bg:#3a2516; --o-line:#8a5a35; --o-fg:#f4b98c;
+  --sim-bg:#33290f; --sim-line:#8a6d1f; --sim-fg:#f0c75e; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
-main{max-width:920px;margin:0 auto;display:grid;gap:18px}
-header{display:grid;gap:6px}
-h1{font-family:var(--f-display);font-size:28px;margin:0;color:var(--navy);letter-spacing:.04em;text-wrap:balance}
-.lead{color:var(--muted);margin:0}
-.sim{border:1px solid var(--warn);background:var(--warn-bg);border-radius:10px;padding:10px 14px;font-size:14px}
-.sim b{color:var(--warn)}
-.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:12px;min-width:0}
-.card h2{margin:0;font-family:var(--f-display);font-size:20px;display:flex;gap:10px;align-items:baseline;text-wrap:balance}
-.card h2 .n{font-family:var(--f-body);font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--muted)}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+main{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+svg.i{flex:none;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:52px;height:52px;border-radius:14px;background:var(--navy);color:var(--paper);display:flex;align-items:center;justify-content:center}
+h1{margin:0;font-family:var(--f-display);font-size:30px;color:var(--navy);letter-spacing:.04em;text-wrap:balance}
+.sub{margin:0;color:var(--muted);font-size:15px}
+.sim{display:flex;align-items:center;gap:8px;background:var(--sim-bg);border:1px solid var(--sim-line);color:var(--sim-fg);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:700}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.step{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px}
+.step .ic{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--muted)}
+.step.done .ic{background:var(--g-bg);color:var(--g-fg)}
+.step.now .ic{background:var(--navy);color:var(--paper)}
+.step .no{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--muted)}
+.step .nm{font-size:17px;font-weight:700}
+.step .stt{font-size:13px;color:var(--muted)}
+.step.done .stt{color:var(--g-fg)} .step.now .stt{color:var(--accent)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:18px;min-width:0}
 .card.off{opacity:.55}
-.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-label.f{display:grid;gap:4px;font-size:13px;color:var(--muted)}
-select,textarea,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
-textarea{width:100%;min-height:70px;resize:vertical}
-button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:8px 16px}
+h2{margin:0;display:flex;align-items:center;gap:10px;font-size:22px;font-family:var(--f-display);text-wrap:balance}
+h2 .i{color:var(--accent)}
+h3{margin:0;font-size:16px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+select,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;min-width:0}
+textarea{width:100%;min-height:70px;resize:vertical;font-size:15px}
+button{font:inherit;cursor:pointer;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:12px 20px;min-height:48px;display:inline-flex;align-items:center;gap:8px}
 button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+button.dark{background:var(--navy);border-color:var(--navy);color:var(--paper);font-weight:700}
 button:disabled{opacity:.4;cursor:default}
-button:focus-visible,select:focus-visible,textarea:focus-visible,.drop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--muted);cursor:pointer}
-.drop.over{border-color:var(--accent);background:var(--soft)}
-.files{display:grid;gap:6px}
-.file{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:14px;min-width:0}
-.file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
-.file small{color:var(--muted);white-space:nowrap}
-.file button{padding:2px 8px;font-size:13px}
-.status{font-size:14px;color:var(--muted);min-height:1.4em}
-.status.err{color:var(--bad)}
-.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0}
-.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
-.tbl{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
-th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.06em}
-.tags{display:flex;flex-wrap:wrap;gap:6px}
-.tag{font-size:13px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted)}
+button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.drop{width:100%;border:2px dashed #9fb2c2;border-radius:14px;background:var(--soft);padding:24px;flex-direction:column;justify-content:center;gap:12px}
+.drop.over{border-color:var(--accent);background:var(--sky)}
+.ftypes{display:flex;gap:18px}
+.ftype{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;color:var(--muted)}
+.ftype span{width:56px;height:56px;border-radius:12px;background:var(--paper);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.drop b{font-size:17px}
+.drop small{font-size:13px;color:var(--muted)}
+.files{display:flex;flex-direction:column;gap:8px}
+.file{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-width:0}
+.file .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file small{color:var(--muted);font-size:13px;white-space:nowrap}
+.file button{min-height:36px;padding:4px 10px;font-size:13px}
+.status{font-size:14px;color:var(--muted);min-height:1.4em;margin:0}
+.status.err{color:var(--r-fg)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.fact{background:var(--soft);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start;min-width:0}
+.fact .i{color:var(--navy)}
+.fact .k{font-size:13px;color:var(--muted)} .fact .v{font-weight:700;overflow-wrap:anywhere}
+.vendors{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.vendor{border:1px solid var(--line);border-top:6px solid var(--vc);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.vendor .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.vendor .hd b{font-size:18px} .vendor .hd span{font-size:13px;color:var(--muted);text-align:right}
+.vendor .price{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.vendor .note{font-size:13px;color:var(--muted)}
+.vrow{display:flex;align-items:center;gap:10px;font-size:14px;border-radius:8px;padding:6px 8px}
+.vrow .k{color:var(--muted);width:52px;flex:none} .vrow .v{font-weight:500;min-width:0}
+.vrow.caution{background:var(--y-bg);color:var(--y-fg)} .vrow.risk{background:var(--r-bg);color:var(--r-fg)}
+.vrow.caution .k,.vrow.risk .k{color:inherit;opacity:.8}
+.tagbar{display:flex;align-items:center;gap:8px;font-weight:700}
+.tagbar small{font-weight:400;font-size:13px;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-size:14px;border-radius:999px;padding:6px 14px;min-height:40px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
 .tag.on{background:var(--navy);border-color:var(--navy);color:var(--paper)}
-.flags{margin:0;padding-left:20px}
-.depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
-.dept{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:12px 14px;display:grid;gap:6px;align-content:start;min-width:0}
-.dept .hd{display:flex;align-items:center;gap:8px}
-.dept .hd b{font-size:16px}
-.dept .hd .lt{margin-left:auto}
-.dept .match{font-size:12px;color:var(--muted)}
-.dept p{margin:0}
-.dept ul{margin:0;padding-left:18px;font-size:14px}
-.dept .ids{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
-.lt{font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;white-space:nowrap;border:1px solid currentColor}
-.lt-綠{color:var(--ok);background:var(--ok-bg)} .lt-黃{color:var(--warn);background:var(--warn-bg)} .lt-紅{color:var(--bad);background:var(--bad-bg)}
-.lt-wait{color:var(--muted)}
-.verdict{border-radius:10px;padding:12px 14px;font-weight:700}
-.verdict.ok{background:var(--ok-bg);color:var(--ok)} .verdict.bad{background:var(--bad-bg);color:var(--bad)}
-.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted)}
-.note{font-size:13px;color:var(--muted);margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:14px;border-radius:999px;padding:6px 12px;white-space:nowrap}
+.pill.綠{background:var(--g-bg);color:var(--g-fg)} .pill.黃{background:var(--y-bg);color:var(--y-fg)} .pill.紅{background:var(--r-bg);color:var(--r-fg)}
+.pill.wait{background:var(--soft);color:var(--muted)}
+.plaza{display:flex;flex-wrap:wrap;align-items:center;gap:20px;background:var(--sky);border-radius:16px;padding:16px 20px}
+.plaza>img{width:150px;height:150px;object-fit:contain;flex:none}
+.plaza .t{font-size:20px;font-weight:700;font-family:var(--f-display);color:var(--navy)}
+.plaza .d{font-size:15px;color:var(--muted)}
+.mini{display:flex;flex-wrap:wrap;gap:6px}
+.mini span{display:flex;align-items:center;gap:4px;background:var(--paper);border-radius:999px;padding:2px 10px 2px 2px;font-size:13px}
+.mini img{width:28px;height:28px;object-fit:contain}
+.depts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.dept{border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.dept .hd{display:flex;align-items:center;gap:12px}
+.dept .pic{width:84px;height:84px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--tint);flex:none}
+.dept .pic img{width:78px;height:78px;object-fit:contain}
+.dept .who{flex:1;min-width:0} .dept .who b{font-size:18px;display:block} .dept .who small{font-size:13px;color:var(--muted)}
+.dept p{margin:0;font-weight:500}
+.tip{display:flex;gap:8px;font-size:14px;color:var(--muted)}
+.tip .i{color:var(--accent);margin-top:3px}
+.ev{font-size:13px;color:var(--muted);border-left:3px solid var(--line);padding-left:8px}
+.meter{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.meter .bar{flex:1;height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.meter .bar i{display:block;height:100%;border-radius:4px;background:var(--dc)}
+.thinking{color:var(--muted);font-size:14px}
+.verdict{display:flex;flex-wrap:wrap;align-items:center;gap:20px;border-radius:14px;padding:18px 20px}
+.verdict.calm{background:var(--g-bg);color:var(--g-fg)}
+.verdict.note{background:var(--o-bg);border:1px solid var(--o-line);color:var(--o-fg)}
+.verdict .txt{flex:1;min-width:240px} .verdict .big{font-size:22px;font-weight:700}
 .dots{display:flex;gap:6px}
-.dots i{width:14px;height:14px;border-radius:50%;background:var(--line)}
-.dots i.綠{background:var(--ok)} .dots i.黃{background:var(--warn)} .dots i.紅{background:var(--bad)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.dots span{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--line)}
+.dots .綠{background:var(--g-dot)} .dots .黃{background:var(--y-dot)} .dots .紅{background:var(--r-dot)}
+.todos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.todo{display:flex;flex-direction:column;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.todo b{display:block;font-weight:500} .todo small{font-size:13px;color:var(--muted)}
+.dec{display:flex;flex-wrap:wrap;gap:8px}
+.dec select{font-size:14px;min-height:40px;padding:6px 10px}
+.dec input{font:inherit;font-size:14px;flex:1;min-width:150px;min-height:40px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+table.hist{border-collapse:collapse;width:100%;font-size:14px}
+table.hist th,table.hist td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.hist th{font-size:12px;color:var(--muted);font-weight:500}
+table.hist .pill{font-size:13px;padding:3px 10px}
+.sr{position:absolute;left:-9999px}
+.bline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--soft);border-radius:10px;padding:8px 12px;font-size:15px}
+.bline small{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+details.fold,details.tagdet{border:1px solid var(--line);border-radius:12px;padding:0 14px}
+details.fold>summary,details.tagdet>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:48px;font-weight:700}
+details.fold>summary::-webkit-details-marker,details.tagdet>summary::-webkit-details-marker{display:none}
+details>summary small{font-weight:400;font-size:13px;color:var(--muted);margin-left:auto}
+details[open]>summary{border-bottom:1px solid var(--line);margin-bottom:12px}
+details.fold[open],details.tagdet[open]{padding-bottom:14px}
+.taglist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.taglist li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px;border-bottom:1px dashed var(--line);padding:6px 0}
+.taglist .ev2{color:var(--muted);flex:1;min-width:160px}
+.taglist .tagx{min-height:32px;padding:2px 10px;font-size:13px}
+.ttype{font-size:12px;border-radius:6px;padding:1px 8px;background:var(--soft);color:var(--muted)}
+.ttype.risk{background:var(--y-bg);color:var(--y-fg)}
+.sug{display:flex;flex-direction:column;gap:6px;background:var(--soft);border-radius:10px;padding:8px 10px}
+.sug-w{display:flex;gap:6px;font-size:14px;font-weight:500}
+.sug-w .i{color:var(--accent);margin-top:3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip2{display:inline-flex;align-items:center;gap:4px;font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted);background:var(--paper)}
+.chip2.own{color:var(--accent);border-color:var(--accent)}
+.chip2.draft{border-style:dashed}
+.layer1{display:flex;flex-direction:column;gap:10px;border-radius:14px;padding:18px 20px}
+.layer1.calm{background:var(--g-bg);color:var(--g-fg)}
+.layer1.note{background:var(--o-bg);border:1px solid var(--o-line);color:var(--o-fg)}
+.layer1 .case{font-size:14px;opacity:.9}
+.layer1 .big{font-size:21px;font-weight:700}
+.layer1 .bline{background:var(--paper);color:var(--ink)}
+.timer{font-size:12px;opacity:.85}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.items{display:flex;flex-direction:column;gap:12px}
+.item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.item.big{border-width:2px}
+.ihd{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ihd b{font-size:17px}
+.ihd .no{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--paper);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.imeta{font-size:13px;color:var(--muted)}
+.mline{display:flex;gap:6px;font-size:15px}
+.mline .i{color:var(--accent);margin-top:4px}
+.mline small{display:block;font-size:13px;color:var(--muted)}
+.linkbtn{align-self:flex-start;min-height:44px;padding:8px 14px}
+.note-s{font-size:13px;color:var(--muted);margin:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 
 <main>
 <header>
-  <h1>經緯島實測會診台</h1>
-  <p class="lead">遠東經緯島 KYS 跨部門會診｜實測版：上傳案件檔案，由 AI 依六部門規則同步判斷。</p>
-  <div class="sim"><b>模擬環境</b>　只能上傳虛構資料。這裡用的是 Claude 服務，不是公司核准平台；正式使用前會轉移到內部平台。</div>
+  <div class="brand">
+    <div class="logo"><svg class="i" width="30" height="30" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16M7 3v18M12 3v18M17 3v18"/></svg></div>
+    <div><h1>經緯島實測會診台</h1><p class="sub">上傳案件檔 → AI 整理重點 → 六部門同步會診 → 會診單</p></div>
+  </div>
+  <div class="sim"><svg class="i" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path d="M9 3h6M10 3v6L4.5 18.5A1.6 1.6 0 0 0 5.9 21h12.2a1.6 1.6 0 0 0 1.4-2.5L14 9V3M7 15h10"/></svg>模擬環境・只放虛構資料</div>
 </header>
 
+<ol class="steps" id="steps" aria-label="會診進度"></ol>
+
 <section class="card" id="s1">
-  <h2><span class="n">步驟 1</span>送件</h2>
+  <h2><svg class="i" width="26" height="26" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path data-icon="upload"/></svg>步驟 1・送件</h2>
   <div class="row">
-    <label class="f" for="entry">入口部門
-      <select id="entry"></select></label>
-    <label class="f" for="stage">目前階段
-      <select id="stage"></select></label>
+    <label class="f" for="entry">從哪個部門送件<select id="entry"></select></label>
+    <label class="f" for="stage">案件走到哪一步<select id="stage"></select></label>
   </div>
-  <div class="drop" id="drop" tabindex="0" role="button" aria-label="選擇或拖放檔案">
-    把檔案拖到這裡，或按一下選擇<br><small>支援 Excel（.xlsx／.xls／.csv）、文字檔（.txt／.md）、圖片（.png／.jpg）</small>
-  </div>
+  <button type="button" class="drop" id="drop">
+    <span class="ftypes">
+      <span class="ftype"><span style="color:var(--g-fg)"><svg class="i" width="30" height="30" viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true"><path data-icon="excel"/></svg></span>Excel</span>
+      <span class="ftype"><span style="color:var(--accent)"><svg class="i" width="30" height="30" viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true"><path data-icon="doc"/></svg></span>文字檔</span>
+      <span class="ftype"><span style="color:var(--navy)"><svg class="i" width="30" height="30" viewBox="0 0 24 24" stroke-width="1.7" aria-hidden="true"><path data-icon="img"/></svg></span>截圖</span>
+    </span>
+    <b>把檔案拖到這裡，或按一下選擇</b>
+    <small>報價分析 Excel（.xlsx／.csv）、文字檔（.txt／.md）、報價單截圖（.png／.jpg）都可以</small>
+  </button>
   <input type="file" id="pick" multiple accept=".xlsx,.xls,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" hidden>
   <div class="files" id="files"></div>
-  <label class="f" for="memo">補充說明（選填）
-    <textarea id="memo" placeholder="例如：使用單位希望 5 個月內完成；加權係數尚未簽核"></textarea></label>
+  <label class="f" for="memo">補充說明（選填）<textarea id="memo" placeholder="例如：使用單位希望年底前下單；加權係數尚未簽核"></textarea></label>
   <div class="row">
-    <button class="primary" id="bExtract" type="button">送出並抽取重點</button>
-    <button id="bSample" type="button">改用範例檔：冰水主機三家報價</button>
+    <button class="primary" id="bExtract" type="button"><svg class="i" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path data-icon="spark"/></svg>請 AI 整理重點</button>
+    <button id="bSample" type="button"><svg class="i" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7M17 15l3 3-3 3"/></svg>範例一：冰水主機三家報價（有風險）</button>
+    <button id="bSample2" type="button"><svg class="i" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7M17 15l3 3-3 3"/></svg>範例二：國內備品（單純案件）</button>
   </div>
-  <p class="status" id="st1"></p>
+  <p class="status" id="st1" aria-live="polite"></p>
 </section>
 
 <section class="card off" id="s2">
-  <h2><span class="n">步驟 2</span>確認案件重點與觸發標籤</h2>
-  <div id="summary"><p class="note">送件後，AI 會先讀檔，抽出金額、幣別、付款條件、廠商等重點，轉成觸發標籤。請在這一步確認，抽錯可以點標籤增減。</p></div>
-  <div class="row">
-    <button class="primary" id="bConsult" type="button" disabled>送進經緯廣場，六部門同步會診</button>
-  </div>
-  <p class="status" id="st2"></p>
+  <h2><svg class="i" width="26" height="26" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path data-icon="spark"/></svg>步驟 2・AI 整理重點，請你確認</h2>
+  <div id="summary"><p class="note-s">送件後，AI 會先讀完檔案，整理出標的、預算、各家廠商條件，並判斷這件案子有哪些特徵（觸發標籤，例如首次交易、外幣計價），每項都附依據。特徵決定要查哪些部門規則；預設收合，需要時再展開增減。</p></div>
+  <div class="row"><button class="primary" id="bConsult" type="button" disabled><svg class="i" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path data-icon="hub"/></svg>送進經緯廣場，六部門同步會診</button></div>
+  <p class="status" id="st2" aria-live="polite"></p>
 </section>
 
 <section class="card off" id="s3">
-  <h2><span class="n">步驟 3</span>六部門會診</h2>
-  <div class="legend"><span><b class="lt lt-綠">綠</b> 允許（可附建議）</span><span><b class="lt lt-黃">黃</b> 無其他意見</span><span><b class="lt lt-紅">紅</b> 嚴重紅旗，處理後再送</span></div>
+  <div class="row" style="justify-content:space-between">
+    <h2><svg class="i" width="26" height="26" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path data-icon="hub"/></svg>步驟 3・六部門同步會診</h2>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="plaza">
+    <img id="plazaImg" alt="經緯廣場插畫">
+    <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:6px">
+      <div class="t">案件送進經緯廣場，六座島同步回覆意見</div>
+      <div class="d">每座島代表一個部門，各自依自己的規則看案子，提出意見給採購處參考。是否採納、何時送出，由採購處決定。</div>
+      <div class="mini" id="mini"></div>
+    </div>
+  </div>
+  <details class="fold" id="deptBox"><summary id="deptSum"></summary>
   <div class="depts" id="depts"></div>
-  <p class="note">每個部門獨立判斷；稽核處固定最後回覆，會參考其他部門的意見。「規則比對」是依觸發標籤自動找出的條目，AI 再判斷是否真的成立。</p>
+  <p class="note-s">稽核處固定最後回覆，會參考其他部門的意見。「規則命中」是依觸發標籤自動找出的條目，AI 再判斷是否真的成立。綠燈部門只回一句話。</p>
+  </details>
 </section>
 
 <section class="card off" id="s4">
-  <h2><span class="n">步驟 4</span>會診單</h2>
-  <div id="report"><p class="note">六燈到齊後，這裡會產出會診單。</p></div>
+  <h2><svg class="i" width="26" height="26" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path data-icon="clip"/></svg>步驟 4・會診結果</h2>
+  <div id="report"><p class="note-s">六個部門回覆並整理完成後，這裡會出現首屏。</p></div>
   <div class="row">
-    <button id="bCsv" type="button" disabled>下載會診單（Excel 可開的 CSV）</button>
-    <button id="bMd" type="button" disabled>下載會診單（文字檔）</button>
-    <button id="bReset" type="button">重新送一件</button>
+    <button class="dark" id="bCsv" type="button" disabled><svg class="i" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>下載會診單（Excel）</button>
+    <button id="bMd" type="button" disabled><svg class="i" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path data-icon="doc"/></svg>下載會診單（文字檔）</button>
+    <button id="bAgain" type="button" disabled><svg class="i" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>補充後再送一次會診</button>
+    <button id="bReset" type="button">送一件新案子</button>
   </div>
-  <p class="status" id="st4"></p>
+  <p class="status" id="st4" aria-live="polite"></p>
 </section>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const KB = /*RULES_JSON*/null;
-const SAMPLE_B64 = "/*SAMPLE_B64*/";
-const SAMPLE_NAME = "模擬測試_冰水主機三家報價分析_v1.xlsx";
-const DEPT_META = {proc:{island:"採購交易所"},fin:{island:"財務金庫"},acct:{island:"會計帳房"},intl:{island:"國際航港"},aud:{island:"稽核瞭望台"},jaud:{island:"聯稽明鏡堂"}};
-const STEPS = ["1 PR收件","2 標單確認","3 詢價","4 廠商報價","5 規格確認","6 報價分析","7 議價","8 議價說明","下單後"];
+const ISLAND = /*IMG_JSON*/{};
+const SAMPLES = /*SAMPLES_JSON*/{};
+const META = {
+  proc:{island:"採購交易所",color:"#1f7a6f",tint:"#ddf0ed"}, fin:{island:"財務金庫",color:"#a5660c",tint:"#f8ecd8"},
+  acct:{island:"會計帳房",color:"#3f7a2f",tint:"#e3f0de"}, intl:{island:"國際航港",color:"#2a62a3",tint:"#dfe9f6"},
+  aud:{island:"稽核瞭望台",color:"#b0384b",tint:"#f8e1e5"}, jaud:{island:"聯稽明鏡堂",color:"#6c4aa3",tint:"#ece5f6"}};
+const ICON = {
+  upload:"M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3",
+  spark:"M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z",
+  hub:"M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM12 2v4M12 18v4M4.2 7l3.5 2M16.3 15l3.5 2M4.2 17l3.5-2M16.3 9l3.5-2",
+  clip:"M9 4h6v3H9zM9 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-3M9 14l2 2 4-4",
+  excel:"M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8zM14 3v5h5M9 12l6 6M15 12l-6 6",
+  doc:"M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8zM14 3v5h5M9 13h6M9 17h6",
+  img:"M4 4h16v16H4zM4 16l5-5 5 5 3-3 3 3M15 8.5h.01",
+  box:"M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10",
+  coin:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM9 9.5c.5-1 1.6-1.5 3-1.5 2 0 3 1 3 2.2 0 3-6 1.8-6 4.8 0 1.2 1 2 3 2 1.4 0 2.5-.5 3-1.5M12 6v2M12 16v2",
+  scale:"M12 4v16M5 20h14M4 8h16M7 8l-3 7a3 3 0 0 0 6 0zM17 8l-3 7a3 3 0 0 0 6 0z",
+  flag:"M5 21V4M5 4h11l-2 4 2 4H5",
+  globe:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z",
+  cal:"M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+  newuser:"M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM3 21c0-3.9 3.1-7 7-7M18 15v6M15 18h6",
+  user:"M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4.4 3.6-8 8-8s8 3.6 8 8",
+  gear:"M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1",
+  shieldq:"M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z",
+  truck:"M3 6h11v10H3zM14 10h4l3 3v3h-7M7 19a1.5 1.5 0 1 0 0-.01M17 19a1.5 1.5 0 1 0 0-.01",
+  ok:"M5 12l5 5 9-10", talk:"M4 5h16v11H9l-5 4zM8 9h8M8 12h5", bang:"M12 4v10M12 19h.01",
+  chev:"M9 6l6 6-6 6", alert:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7.5v5.5M12 16.5h.01", calm:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8 12l3 3 5-6"
+};
+const LIGHT = {"綠":{name:"無意見",legend:"無意見",d:ICON.ok},"黃":{name:"建議討論",legend:"建議討論或補充資訊",d:ICON.talk},"紅":{name:"強烈建議",legend:"強烈建議（事項較嚴重）",d:ICON.bang}};
+const LIGHTS = Object.keys(LIGHT);
+const STAGES = ["1 PR收件","2 標單確認","3 詢價","4 廠商報價","5 規格確認","6 報價分析","7 議價","8 議價說明","下單後"];
 const ALL_TAGS = [...new Set(KB.depts.flatMap(d => d.rules.flatMap(r => r.tags)))].filter(t => !t.startsWith("（")).sort((a,b)=>a.localeCompare(b,"zh-Hant"));
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const LIGHTS = ["綠","黃","紅"];
+const svg = (d, size = 20, w = 1.8) => `<svg class="i" width="${size}" height="${size}" viewBox="0 0 24 24" stroke-width="${w}" aria-hidden="true"><path d="${d}"/></svg>`;
+const rowIcon = k => /預算|價|金額|幣/.test(k) ? ICON.coin : /貿易|原產|進口|運/.test(k) ? ICON.globe : /付款|預付/.test(k) ? ICON.cal
+  : /往來|首次|廠商|帳戶|資格/.test(k) ? ICON.newuser : /規格|型式|效率/.test(k) ? ICON.gear : /交期/.test(k) ? ICON.truck : /保固/.test(k) ? ICON.shieldq : ICON.flag;
+const VCOLOR = {normal:"var(--g-dot)", caution:"var(--y-dot)", risk:"var(--r-dot)"};
 
 let sample = null, downloads = null;
-const state = {files: [], extracted: null, tags: new Set(), results: {}, running: false};
+const state = {files: [], extracted: null, tags: new Set(), tagEvidence: new Map(), results: {}, running: false, phase: 0, statuses: {}, history: [], consolidated: null, consolidateNote: "", seconds: null};
 
 /* ---------- 初始化 ---------- */
+document.querySelectorAll("path[data-icon]").forEach(p => p.setAttribute("d", ICON[p.dataset.icon]));
 $("entry").innerHTML = KB.depts.map(d => `<option value="${d.key}">${esc(d.name)}</option>`).join("");
-$("stage").innerHTML = STEPS.map(s => `<option${s.startsWith("6") ? " selected" : ""}>${esc(s)}</option>`).join("");
-renderDepts();
+$("stage").innerHTML = STAGES.map(s => `<option${s.startsWith("6") ? " selected" : ""}>${esc(s)}</option>`).join("");
+$("plazaImg").src = ISLAND.plaza || "";
+$("legend").innerHTML = LIGHTS.map(l => `<span class="pill ${l}">${svg(LIGHT[l].d, 18, 2.4)}<b>${l}燈</b>：${LIGHT[l].legend}</span>`).join("");
+$("mini").innerHTML = KB.depts.map(d => `<span><img src="${ISLAND[d.key] || ""}" alt="">${META[d.key].island}</span>`).join("");
+renderSteps(); renderDepts();
 (async () => {
   try { sample = await window.claude?.use("sample"); } catch { sample = null; }
   try { downloads = await window.claude?.use("downloads"); } catch { downloads = null; }
-  if (!sample) { setStatus("st1", "這個畫面無法呼叫 Claude（請在 claude.ai 開啟本頁）。仍可上傳並預覽檔案內容。", true); }
+  if (!sample) setStatus("st1", "這個畫面無法呼叫 Claude（請在 claude.ai 開啟本頁）。仍可上傳並預覽檔案。", true);
   if (!downloads) { $("bCsv").hidden = true; $("bMd").hidden = true; }
 })();
 
+function renderSteps() {
+  const names = [["送件", ICON.upload], ["AI 整理重點", ICON.spark], ["六部門會診", ICON.hub], ["會診結果", ICON.clip]];
+  $("steps").innerHTML = names.map(([n, d], i) => {
+    const cls = i < state.phase ? "done" : i === state.phase ? "now" : "";
+    const stt = cls === "done" ? "已完成" : cls === "now" ? "目前在這一步" : "尚未開始";
+    return `<li class="step ${cls}"${cls === "now" ? ' aria-current="step"' : ""}><span class="ic">${svg(d, 26)}</span><span><span class="no">步驟 ${i + 1}</span><br><span class="nm">${n}</span><br><span class="stt">${stt}</span></span></li>`;
+  }).join("");
+}
+function setPhase(p) { state.phase = p; renderSteps(); }
 function setStatus(id, msg, err) { const el = $(id); el.textContent = msg || ""; el.classList.toggle("err", !!err); }
 function errCopy(e) {
   const c = e?.code;
   if (c === "not_granted" || c === "sampling_disabled") return "沒有取得使用 Claude 的同意，無法分析。重新整理頁面後可再允許一次。";
   if (c === "rate_limited") return "呼叫太頻繁或已達使用上限，請稍後再按一次。";
   if (c === "session_expired") return "登入逾時，請重新登入 claude.ai。";
-  if (c === "prompt_too_large") return "檔案內容太長，請刪減工作表或改上傳重點頁。";
+  if (c === "prompt_too_large") return "檔案內容太長，請刪減工作表或只上傳重點頁。";
   if (c === "invalid_json") return "AI 回覆格式不完整，請再按一次。";
-  if (c === "refused") return "AI 拒絕處理這份內容，請檢查檔案是否含不當資料。";
+  if (c === "refused") return "AI 沒有處理這份內容，請檢查檔案內容。";
   if (c === "image_rejected" || c === "images_unavailable") return "圖片無法送出，請改用 Excel 或文字檔。";
   return "連線或服務暫時有問題，請再按一次。";
 }
+const deptName = k => KB.depts.find(d => d.key === k)?.name || k;
 
-/* ---------- 檔案 ---------- */
+/* ---------- 步驟 1：檔案 ---------- */
 const drop = $("drop"), pick = $("pick");
 drop.onclick = () => pick.click();
-drop.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick.click(); } };
 drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
 drop.ondragleave = () => drop.classList.remove("over");
 drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); addFiles(e.dataTransfer.files); };
 pick.onchange = () => { addFiles(pick.files); pick.value = ""; };
-
 async function addFiles(list) {
   for (const f of list) {
     try { state.files.push(await readFile(f)); }
@@ -197,116 +356,208 @@ async function addFiles(list) {
 }
 async function readFile(f) {
   const ext = f.name.split(".").pop().toLowerCase();
-  if (["png","jpg","jpeg","webp"].includes(ext)) return {name: f.name, kind: "圖片", blob: f, text: ""};
-  if (["txt","md"].includes(ext)) return {name: f.name, kind: "文字", text: (await f.text()).slice(0, 60000)};
+  if (["png","jpg","jpeg","webp"].includes(ext)) return {name: f.name, kind: "截圖", icon: ICON.img, blob: f, text: ""};
+  if (["txt","md"].includes(ext)) return {name: f.name, kind: "文字檔", icon: ICON.doc, text: (await f.text()).slice(0, 60000)};
   if (["xlsx","xls","csv"].includes(ext)) {
     if (!window.XLSX) throw new Error("Excel 讀取元件沒有載入（可能被網路擋住）");
     const wb = XLSX.read(await f.arrayBuffer(), {type: "array"});
-    return {name: f.name, kind: "Excel", text: workbookText(wb), sheets: wb.SheetNames.length};
+    return {name: f.name, kind: `Excel・${wb.SheetNames.length} 張工作表`, icon: ICON.excel, text: workbookText(wb)};
   }
   throw new Error("不支援這種檔案格式");
 }
 function workbookText(wb) {
   return wb.SheetNames.map(n => {
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], {header: 1, raw: false, blankrows: false});
-    return `### 工作表：${n}\n` + rows.map(r => r.map(c => String(c ?? "").replace(/\s+/g, " ")).join(" | ")).join("\n");
+    return `### 工作表：${n}\n` + rows.map((r, i) => `第${i + 1}列：` + r.map(c => String(c ?? "").replace(/\s+/g, " ")).join(" | ")).join("\n");
   }).join("\n\n").slice(0, 60000);
 }
 function renderFiles() {
-  $("files").innerHTML = state.files.map((f, i) => `<div class="file"><span>${esc(f.name)}</span><small>${f.kind}${f.sheets ? `・${f.sheets} 張工作表` : ""}${f.text ? `・${f.text.length.toLocaleString()} 字` : ""}</small><button type="button" data-i="${i}" aria-label="移除 ${esc(f.name)}">移除</button></div>`).join("");
+  $("files").innerHTML = state.files.map((f, i) => `<div class="file"><span style="color:var(--g-fg)">${svg(f.icon, 24)}</span><span class="nm">${esc(f.name)}</span><small>${esc(f.kind)}</small><span style="color:var(--g-fg)" role="img" aria-label="已讀取">${svg(ICON.ok, 20, 2.2)}</span><button type="button" data-i="${i}" aria-label="移除 ${esc(f.name)}">移除</button></div>`).join("");
   $("files").querySelectorAll("button").forEach(b => b.onclick = () => { state.files.splice(+b.dataset.i, 1); renderFiles(); });
 }
-$("bSample").onclick = () => {
-  const bin = Uint8Array.from(atob(SAMPLE_B64), c => c.charCodeAt(0));
+function loadSample(key) {
+  const s = SAMPLES[key];
+  if (!s) return;
+  if (!window.XLSX) return setStatus("st1", "Excel 讀取元件沒有載入，無法開啟範例檔。", true);
+  const bin = Uint8Array.from(atob(s.b64), c => c.charCodeAt(0));
   const wb = XLSX.read(bin, {type: "array"});
-  state.files = [{name: SAMPLE_NAME, kind: "Excel", text: workbookText(wb), sheets: wb.SheetNames.length}];
-  $("entry").value = "proc"; $("stage").value = "6 報價分析";
-  $("memo").value = "使用單位希望年底前完成下單；加權係數（CAPEX 20%／OPEX 80%）尚未簽核。";
-  renderFiles(); setStatus("st1", "已載入範例檔（全部為虛構資料）。按「送出並抽取重點」開始。");
-};
+  state.files = [{name: s.name, kind: `Excel・${wb.SheetNames.length} 張工作表`, icon: ICON.excel, text: workbookText(wb)}];
+  $("entry").value = "proc"; $("stage").value = "6 報價分析"; $("memo").value = s.memo;
+  renderFiles(); setStatus("st1", "已載入範例檔（全部為虛構資料）。按「請 AI 整理重點」開始。");
+}
+$("bSample").onclick = () => loadSample("chiller");
+$("bSample2").onclick = () => loadSample("simple");
 
-/* ---------- 步驟 2：抽重點 ---------- */
+/* ---------- 共用：階段、預算、標籤 ---------- */
+const TAG_TYPE = KB.tagTypes || {};
+const WHEN = ["議價中", "決標前", "送簽前", "付款前"];
+const OWNER = ["採購現在行動", "轉請其他部門處理", "僅供知悉"];
+const IMPACT = {L1: "影響決標或評選", L2: "議價或條件可處理", L3: "程序備忘"};
+const STATUS = ["待處理", "已處理", "不適用"];
+// 階段 → 預算處理：1～3 尚無報價不比對；4～6 議價前只顯示參考；7～8 議價後提醒；下單後不比對
+function budgetMode() {
+  const i = STAGES.indexOf($("stage").value);
+  return i >= 3 && i <= 5 ? "pre" : i >= 6 && i <= 7 ? "post" : "none";
+}
+const MODE_NAME = {pre: "議價前", post: "議價後", none: ""};
+const num = v => { const n = Number(String(v ?? "").replace(/[^\d.]/g, "")); return isFinite(n) && n > 0 ? n : 0; };
+function budgetFacts() {
+  const x = state.extracted, mode = budgetMode();
+  if (!x || mode === "none") return null;
+  const b = num(x.budget_ntd);
+  if (!b) return {mode, text: "預算或報價金額不完整，無法換算需降幅度。"};
+  const over = (x.vendors || []).map(v => ({name: v.name, p: num(v.price_ntd)})).filter(v => v.p > b)
+    .map(v => `${v.name}需降 ${((1 - b / v.p) * 100).toFixed(1)}%`);
+  if (mode === "pre") return {mode, label: "議價前參考", text: over.length ? `${over.join("、")} 回到預算` : "各家報價都在預算內"};
+  return {mode, label: "預算提醒", text: over.length ? `議價後仍超出預算：${over.join("、")} 才回到預算` : "議價後各家都在預算內"};
+}
+
+/* ---------- 步驟 2：AI 整理重點 ---------- */
 $("bExtract").onclick = async () => {
-  if (!state.files.length) return setStatus("st1", "請先上傳檔案，或改用範例檔。", true);
+  if (!state.files.length) return setStatus("st1", "請先上傳檔案，或用範例試試。", true);
   if (!sample) return setStatus("st1", "這個畫面無法呼叫 Claude，請在 claude.ai 開啟本頁。", true);
   const btn = $("bExtract"); btn.disabled = true; setStatus("st1", "AI 讀檔中，約需 20～60 秒…");
+  const tx = performance.now();
   const texts = state.files.filter(f => f.text).map(f => `【檔案：${f.name}】\n${f.text}`).join("\n\n");
   const imgs = state.files.filter(f => f.blob).map(f => f.blob);
-  const prompt = `你是遠東集團採購處的案件整理助理。以下是一件採購案的送件資料（模擬資料）。請抽出重點，供六個部門（採購、財務、會計、國際事務、稽核、聯稽）會診使用。
+  const mode = budgetMode();
+  const prompt = `你是遠東集團採購處的案件整理助理。以下是一件採購案的送件資料（模擬資料）。請整理重點，供六個部門（採購、財務、會計、國際事務、稽核、聯稽）會診使用。
 
 入口部門：${deptName($("entry").value)}
-目前階段：${$("stage").value}
+目前階段：${$("stage").value}${mode === "pre" ? "（議價前）" : mode === "post" ? "（議價後）" : ""}
 補充說明：${$("memo").value || "（無）"}
 
-可用的觸發標籤（只能從這份清單挑，挑所有符合的）：
+觸發標籤清單（只能從這份清單挑）：
 ${ALL_TAGS.join("、")}
+挑標籤的規則：每個標籤都必須附「證據」，寫出檔案中的位置（例如「5 廠商資料 第7列」）或一小段原文。找不到證據就不要列這個標籤，寧可少列。
 
 送件資料：
 ${texts || "（只有圖片，見附圖）"}
 
 只回覆一個 JSON 物件，格式：
-{"title":"案件名稱","item":"標的與數量","budget":"預算（含幣別，查無寫「未載明」）","stage":"目前階段","evaluation":"評選方式","vendors":[{"name":"廠商","price":"報價（含幣別）","currency":"報價幣別","incoterm":"貿易條件","payment":"付款條件","first_time":"是否首次交易","origin":"原產地","note":"重要備註"}],"tags":["觸發標籤"],"flags":["值得各部門注意的事實，每條一句，最多 8 條"]}
-所有文字用臺灣繁體中文。只根據資料，不要編造；資料沒有的欄位寫「未載明」。`;
+{"title":"案件名稱","item":"標的與數量","budget":"預算（含幣別）","budget_ntd":預算數字（新台幣、未稅；查無填 0）,"stage":"目前階段","evaluation":"評選方式",
+ "vendors":[{"name":"廠商簡稱（如：甲）","role":"身分（如：原廠代理、貿易商）","price":"報價總額（含幣別，取整到萬）","price_ntd":報價總額數字（新台幣、未稅，只含設備與附屬費用，不含電費等營運成本；查無填 0）,"note":"一句補充（如 10 年電費、加權分數）",
+   "items":[{"k":"兩到三字的項目名（幣別／貿易／付款／往來／規格／原產地／交期／保固）","v":"10 字內的內容","level":"normal|caution|risk"}]}],
+ "tags":[{"tag":"觸發標籤","evidence":"證據位置或原文片段"}],"flags":["值得各部門注意的事實，每條一句，最多 6 條"]}
+每家廠商 items 挑最重要的 4 項；level：一般為 normal，值得討論為 caution，可能有嚴重風險為 risk。
+${mode === "pre" ? "本案在議價前，報價高於預算是常態：items 不要列預算或超預算，flags 也不要提預算超支。\n" : ""}所有文字用臺灣繁體中文。只根據資料，不要編造；資料沒有的寫「未載明」。`;
   try {
     const out = await sample.json(prompt, {modelTier: "default", ...(imgs.length ? {images: imgs} : {})});
     if (!out || !Array.isArray(out.vendors)) throw {code: "invalid_json"};
+    if (mode === "pre") out.vendors.forEach(v => { v.items = (v.items || []).filter(r => !/預算/.test(String(r.k) + String(r.v))); });
     state.extracted = out;
-    state.tags = new Set((out.tags || []).filter(t => ALL_TAGS.includes(t)));
-    state.results = {}; renderDepts(); renderReport();
-    renderSummary(); $("s2").classList.remove("off"); $("bConsult").disabled = false;
-    setStatus("st1", "已抽取完成，請到步驟 2 確認。");
+    state.tagEvidence = new Map();
+    for (const t of Array.isArray(out.tags) ? out.tags : []) {
+      const tag = String(t?.tag ?? t ?? "").trim(), ev = String(t?.evidence ?? "").trim();
+      if (ALL_TAGS.includes(tag) && ev) state.tagEvidence.set(tag, ev);
+    }
+    state.tags = new Set(state.tagEvidence.keys());
+    state.extractSecs = Math.round((performance.now() - tx) / 1000);
+    state.results = {}; state.consolidated = null; renderDepts(); renderReport();
+    renderSummary(); $("s2").classList.remove("off"); $("bConsult").disabled = false; setPhase(1);
+    setStatus("st1", "重點已整理完成，請到步驟 2 確認。");
     $("s2").scrollIntoView({behavior: "smooth", block: "start"});
   } catch (e) { setStatus("st1", errCopy(e), true); }
   finally { btn.disabled = false; }
 };
-function deptName(k) { return KB.depts.find(d => d.key === k)?.name || k; }
 function renderSummary() {
   const x = state.extracted;
+  const facts = [["標的", x.item, ICON.box], ["預算", x.budget, ICON.coin], ["評選方式", x.evaluation, ICON.scale], ["目前階段", $("stage").value, ICON.flag]];
+  const bf = budgetFacts();
   $("summary").innerHTML = `
-  <dl class="kv"><dt>案件</dt><dd>${esc(x.title)}</dd><dt>標的</dt><dd>${esc(x.item)}</dd><dt>預算</dt><dd>${esc(x.budget)}</dd><dt>評選方式</dt><dd>${esc(x.evaluation)}</dd><dt>入口</dt><dd>${esc(deptName($("entry").value))}・${esc($("stage").value)}</dd></dl>
-  <div class="tbl"><table><thead><tr><th>廠商</th><th>報價</th><th>貿易條件</th><th>付款條件</th><th>首次交易</th><th>原產地</th><th>備註</th></tr></thead><tbody>
-  ${x.vendors.map(v => `<tr><td>${esc(v.name)}</td><td>${esc(v.price)}</td><td>${esc(v.incoterm)}</td><td>${esc(v.payment)}</td><td>${esc(v.first_time)}</td><td>${esc(v.origin)}</td><td>${esc(v.note)}</td></tr>`).join("")}
-  </tbody></table></div>
-  ${x.flags?.length ? `<div><b>注意事項</b><ul class="flags">${x.flags.map(f => `<li>${esc(f)}</li>`).join("")}</ul></div>` : ""}
-  <div><b>觸發標籤</b>（深色＝已選；點一下可增減）<div class="tags" id="tagbox"></div></div>`;
+  <div style="display:flex;flex-direction:column;gap:18px">
+  <div class="facts">${facts.map(([k, v, d]) => `<div class="fact">${svg(d, 26, 1.7)}<div><div class="k">${k}</div><div class="v">${esc(v || "未載明")}</div></div></div>`).join("")}</div>
+  ${bf ? `<div class="bline">${svg(ICON.coin, 20)}<b>${esc(bf.label || "預算")}</b><span>${esc(bf.text)}</span>${bf.mode === "pre" ? `<small>不計入燈號</small>` : ""}</div>` : ""}
+  <h3>${esc(x.title || "案件")}：${x.vendors.length} 家廠商一眼比較</h3>
+  <div class="vendors">${x.vendors.map(v => {
+    const items = (v.items || []).slice(0, 5);
+    const worst = items.some(r => r.level === "risk") ? "risk" : items.some(r => r.level === "caution") ? "caution" : "normal";
+    return `<article class="vendor" style="--vc:${VCOLOR[worst]}"><div class="hd"><b>${esc(v.name)}</b><span>${esc(v.role)}</span></div>
+      <div class="price">${esc(v.price)}</div>${v.note ? `<div class="note">${esc(v.note)}</div>` : ""}
+      ${items.map(r => { const lv = ["caution","risk"].includes(r.level) ? r.level : "";
+        return `<div class="vrow ${lv}">${svg(lv === "risk" ? ICON.bang : rowIcon(r.k), 20)}<span class="k">${esc(r.k)}</span><span class="v">${esc(r.v)}</span>${lv ? `<span class="sr">${lv === "risk" ? "（可能有嚴重風險）" : "（值得討論）"}</span>` : ""}</div>`; }).join("")}
+    </article>`; }).join("")}</div>
+  ${x.flags?.length ? `<div><h3 style="margin-bottom:6px">AI 提醒各部門注意</h3>${x.flags.map(f => `<div class="tip">${svg(ICON.chev, 16, 2.2)}<span>${esc(f)}</span></div>`).join("")}</div>` : ""}
+  <details class="tagdet" id="tagdet"><summary id="tagsum"></summary><div class="tagbody" id="tagbody"></div></details>
+  </div>`;
   renderTags();
 }
 function renderTags() {
-  const box = $("tagbox"); if (!box) return;
-  const sorted = [...ALL_TAGS].sort((a, b) => state.tags.has(b) - state.tags.has(a));
-  box.innerHTML = sorted.map(t => `<button type="button" class="tag${state.tags.has(t) ? " on" : ""}" aria-pressed="${state.tags.has(t)}">${esc(t)}</button>`).join("");
-  box.querySelectorAll("button").forEach(b => b.onclick = () => { const t = b.textContent; state.tags.has(t) ? state.tags.delete(t) : state.tags.add(t); renderTags(); });
+  const sum = $("tagsum"), body = $("tagbody"); if (!sum) return;
+  const on = [...state.tags], risk = on.filter(t => TAG_TYPE[t] === "risk");
+  sum.innerHTML = `${svg("M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9zM7.5 7.5h.01", 20)}<span>AI 判斷此案有 <b>${on.length}</b> 項特徵${risk.length ? `（風險特徵 ${risk.length} 項：${esc(risk.join("、"))}）` : ""}</span><small>展開看依據、增減</small>`;
+  const row = t => `<li><span class="ttype ${TAG_TYPE[t] || "attribute"}">${TAG_TYPE[t] === "risk" ? "風險" : "屬性"}</span><b>${esc(t)}</b><span class="ev2">依據：${esc(state.tagEvidence.get(t) || "使用者手動加入")}</span><button type="button" class="tagx" data-t="${esc(t)}" aria-label="移除 ${esc(t)}">移除</button></li>`;
+  const off = ALL_TAGS.filter(t => !state.tags.has(t));
+  body.innerHTML = `${on.length ? `<ul class="taglist">${on.map(row).join("")}</ul>` : `<p class="note-s">目前沒有標籤；沒有標籤時只會比對「所有案件適用」的規則。</p>`}
+    <div class="tagbar" style="margin-top:8px">${svg("M12 5v14M5 12h14", 18)}手動加入<small>標籤決定要查哪些規則；手動加入的標籤依據記為「使用者手動加入」</small></div>
+    <div class="tags">${off.map(t => `<button type="button" class="tag" data-t="${esc(t)}">${svg("M12 5v14M5 12h14", 16, 2.2)}${esc(t)}</button>`).join("")}</div>`;
+  body.querySelectorAll("button[data-t]").forEach(b => b.onclick = () => {
+    const t = b.dataset.t;
+    if (state.tags.has(t)) { state.tags.delete(t); state.tagEvidence.delete(t); }
+    else { state.tags.add(t); state.tagEvidence.set(t, "使用者手動加入"); }
+    renderTags(); if (state.extracted && !state.running) renderDepts();
+  });
 }
 
-/* ---------- 步驟 3：會診 ---------- */
-function matchRules(d) {
-  return d.rules.filter(r => r.tags.some(t => state.tags.has(t)) || r.tags.some(t => t.startsWith("（")));
+/* ---------- 步驟 3：六部門會診 ---------- */
+const matchRules = d => d.rules.filter(r => r.tags.some(t => state.tags.has(t)) || r.tags.some(t => t.startsWith("（")));
+const sugLine = s => `${s.what}${s.to ? `（對象：${s.to}` : ""}${s.when ? `${s.to ? "；" : "（"}時點：${s.when}` : ""}${s.to || s.when ? "）" : ""}`;
+function sugHtml(s) {
+  return `<div class="sug"><div class="sug-w">${svg(ICON.chev, 16, 2.2)}<span>${esc(s.what)}</span></div>
+    <div class="chips"><span class="chip2">${svg(ICON.user, 14)}${esc(s.to || "對象待確認")}</span><span class="chip2">${svg(ICON.cal, 14)}${esc(s.when)}</span><span class="chip2 own">${esc(s.owner)}</span><span class="chip2">${esc(s.impact)} ${IMPACT[s.impact]}・暫判</span>${s.aiDraft ? `<span class="chip2 draft">AI 草擬</span>` : ""}</div></div>`;
 }
 function renderDepts() {
   $("depts").innerHTML = KB.depts.map(d => {
-    const r = state.results[d.key];
-    const n = state.extracted ? matchRules(d).length : null;
-    const light = r?.light;
-    const body = !r ? `<p class="note">${state.running ? "判斷中…" : "等待送件"}</p>`
+    const m = META[d.key], r = state.results[d.key], n = state.extracted ? matchRules(d).length : 0;
+    const L = r?.light ? LIGHT[r.light] : null;
+    const pill = L ? `<span class="pill ${r.light}">${svg(L.d, 18, 2.4)}<b>${L.name}</b></span>`
+      : `<span class="pill wait">${state.running && !r ? "判斷中…" : "未回覆"}</span>`;
+    const body = !r ? `<p class="thinking">${state.running ? (d.key === "aud" ? "等其他部門回覆後再判斷…" : "依規則判斷中…") : "等待送件"}</p>`
       : r.error ? `<p class="status err">${esc(r.error)}</p>`
-      : `<p>${esc(r.conclusion)}</p>${r.suggestions?.length ? `<ul>${r.suggestions.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : ""}<div class="ids">依據：${esc((r.rules || []).join("、") || "—")}</div>`;
-    return `<article class="dept" style="--c:var(--c-${d.key})"><div class="hd"><b>${esc(d.name)}</b><small>${DEPT_META[d.key].island}</small><span class="lt ${light ? "lt-" + light : "lt-wait"}">${light || (state.running && !r ? "…" : "未回覆")}</span></div>${n !== null ? `<div class="match">規則比對：命中 ${n} 條／共 ${d.rules.length} 條</div>` : ""}${body}</article>`;
+      : `<p>${esc(r.conclusion)}</p>${(r.suggestions || []).map(sugHtml).join("")}
+         ${r.evidence ? `<div class="ev">依據：${esc(r.evidence)}${r.rules?.length ? `（${esc(r.rules.join("、"))}）` : ""}</div>` : ""}`;
+    return `<article class="dept" style="--tint:${m.tint};--dc:${m.color}"><div class="hd"><div class="pic"><img src="${ISLAND[d.key] || ""}" alt="${m.island}插畫"></div>
+      <div class="who"><b>${esc(d.name)}</b><small>${m.island}${d.key === "aud" ? "・最後回覆" : ""}</small></div>${pill}</div>${body}
+      ${state.extracted ? `<div class="meter"><span>規則命中</span><span class="bar"><i style="width:${Math.round(n / d.rules.length * 100)}%"></i></span><span>${n}／${d.rules.length} 條</span></div>` : ""}</article>`;
   }).join("");
+  const done = KB.depts.filter(d => state.results[d.key]?.light);
+  const cnt = LIGHTS.map(l => `${l} ${done.filter(d => state.results[d.key].light === l).length}`).join("｜");
+  $("deptSum").innerHTML = `${svg(ICON.hub, 20)}<span>各部門意見全文（${done.length}／6 已回覆${done.length ? `：${cnt}` : ""}）</span><small>展開／收合</small>`;
 }
 function caseBlock() {
   const x = state.extracted;
-  return `案件重點（JSON）：${JSON.stringify({...x, tags: [...state.tags]})}\n\n補充說明：${$("memo").value || "（無）"}\n\n原始送件資料（節錄）：\n${state.files.filter(f => f.text).map(f => f.text).join("\n\n").slice(0, 24000)}`;
+  const tags = [...state.tags].map(t => `${t}（${TAG_TYPE[t] === "risk" ? "風險" : "屬性"}；依據：${state.tagEvidence.get(t) || "使用者手動加入"}）`);
+  return `案件重點（JSON）：${JSON.stringify({...x, tags: undefined})}\n觸發標籤：${tags.join("、") || "（無）"}\n\n補充說明：${$("memo").value || "（無）"}\n\n原始送件資料（節錄，含工作表與列號）：\n${state.files.filter(f => f.text).map(f => f.text).join("\n\n").slice(0, 24000)}`;
+}
+function budgetPromptLine(d) {
+  const mode = budgetMode();
+  if (mode === "pre") return "本案在議價前，報價高於預算是常態：不要評論預算超支，也不要把超預算當作判斷或建議的依據。";
+  if (mode === "post") return d.key === "proc" ? "本案已在議價後：若報價仍高於預算，請以黃燈提醒處理預算（例如追加預算或再議價）。" : "預算是否超支由採購處提醒，本部門不需重複。";
+  return "預算超支不在本次判斷範圍。";
 }
 function deptPrompt(d, others) {
   const hit = new Set(matchRules(d).map(r => r.id));
-  const rules = d.rules.map(r => `${hit.has(r.id) ? "★" : "・"}${r.id}｜${r.principle}｜${r.question}｜適用：${r.situation}｜${r.level}`).join("\n");
-  return `你代表遠東集團「${d.name}」參加 KYS（Know Your Supplier）跨部門採購會診。依「${d.name}」自己的規則，獨立判斷這件案子（模擬資料）。
+  const rules = d.rules.map(r => `${hit.has(r.id) ? "★" : "・"}${r.id}｜${r.principle}｜${r.question}｜適用：${r.situation}｜${r.level}${r.impact ? `｜影響：${r.impact}` : ""}${r.action ? `｜標準建議動作：${r.action}` : ""}`).join("\n");
+  return `你代表遠東集團「${d.name}」參加 KYS（Know Your Supplier）跨部門採購會診。依「${d.name}」自己的規則，獨立看這件案子（模擬資料），提出意見給採購處參考。
+各部門只提意見，是否採納、何時送出由採購處決定，所以用詞要客氣、具體，不要寫「禁止」「退回」「不得」。
+採購同仁時間有限：只講最重要的一件事，要能直接照做。
 
 燈號定義（小組既定）：
-- 綠：允許。可以附建議事項。
-- 黃：本部門無其他意見（與本部門職掌無關或沒有要補充的）。
-- 紅：嚴重紅旗。必須處理後再送，暫不送報價分析。
-有需要處理但不到紅旗的事項，用「綠」並寫在建議裡。
+- 綠：無意見（沒有要補充的，或與本部門職掌無關）。綠燈只回一句結論，suggestions 給空陣列。
+- 黃：建議討論，或有資訊需要補充。最多 1 條建議。
+- 紅：強烈建議（事項較嚴重），請採購處優先處理。最多 2 條建議。
+${budgetPromptLine(d)}
+
+每條建議必須具體，固定包含：
+- what：做什麼（具體動作，含本案事實，例如「請丙廠提供原廠授權書，並改用公司帳戶收款」）
+- to：對誰（哪家廠商、哪個單位）
+- when：時點，只能是「議價中」「決標前」「送簽前」「付款前」之一
+- owner：歸屬，只能是「採購現在行動」「轉請其他部門處理」「僅供知悉」之一
+- impact：影響層級，L1＝影響決標或評選，L2＝議價或條件可處理，L3＝程序備忘
+- fact：這條建議針對的事實（15 字內，例如「丙廠以個人帳戶收款」）
+- rules：這條建議依據的規則編號
+不要寫空泛句，以下都是反例：「建議評估」「請注意」「宜留意」「加強控管」。
+規則若附「標準建議動作」，以它為底，只填入本案事實，不要自行創作。
 
 ${d.name}的規則（★＝依觸發標籤比對命中，請優先檢查；其他條目若資料顯示成立也可引用）：
 ${rules}
@@ -314,78 +565,228 @@ ${rules}
 ${caseBlock()}
 ${others ? `\n其他部門已回覆（供參考，仍須獨立判斷）：\n${others}\n` : ""}
 只回覆一個 JSON 物件：
-{"light":"綠|黃|紅","conclusion":"一句結論（40 字內）","suggestions":["具體建議，最多 4 條，每條一句"],"rules":["引用的規則編號"]}
+{"light":"綠|黃|紅","conclusion":"一句結論（40 字內）","suggestions":[{"what":"","to":"","when":"","owner":"","impact":"","fact":"","rules":["規則編號"]}],"evidence":"依據檔案中的哪個工作表、第幾列或哪項資料（30 字內；無則空字串）","rules":["引用的規則編號"]}
 用臺灣繁體中文。只根據資料判斷，資料不足就寫「待確認」，不要編造。`;
+}
+function normSug(s, light, d, i, rules) {
+  const o = typeof s === "string" ? {what: s} : (s || {});
+  const owner = OWNER.includes(o.owner) ? o.owner : (light === "紅" ? "採購現在行動" : "僅供知悉");
+  const own = (Array.isArray(o.rules) ? o.rules : []).map(String).filter(id => d.rules.some(r => r.id === id));
+  const usedAction = (own.length ? own : rules).some(id => d.rules.find(r => r.id === id)?.action);
+  return {id: `${d.key}-${i}`, dept: d.key, light, rules: own, what: String(o.what || "").trim(), to: String(o.to || "").trim(),
+    when: WHEN.includes(o.when) ? o.when : "時點待確認", owner, impact: ["L1", "L2", "L3"].includes(o.impact) ? o.impact : "L2",
+    fact: String(o.fact || "").trim(), aiDraft: !usedAction};
 }
 async function askDept(d, others) {
   state.results[d.key] = null; renderDepts();
   try {
     const out = await sample.json(deptPrompt(d, others), {modelTier: "default", cache: false});
     const light = LIGHTS.includes(out?.light) ? out.light : null;
-    state.results[d.key] = light ? {light, conclusion: String(out.conclusion || ""), suggestions: (out.suggestions || []).map(String).slice(0, 4), rules: (out.rules || []).map(String)}
-      : {error: "回覆沒有有效燈號"};
+    if (!light) { state.results[d.key] = {error: "回覆沒有有效燈號，請再送一次。"}; }
+    else {
+      const rules = (out.rules || []).map(String);
+      const cap = light === "紅" ? 2 : light === "黃" ? 1 : 0;
+      const sugs = (Array.isArray(out.suggestions) ? out.suggestions : []).slice(0, cap).map((s, i) => normSug(s, light, d, i, rules)).filter(s => s.what);
+      state.results[d.key] = {light, conclusion: String(out.conclusion || ""), suggestions: sugs, evidence: String(out.evidence || ""), rules};
+    }
   } catch (e) { state.results[d.key] = {error: errCopy(e)}; }
   renderDepts(); renderReport();
 }
-$("bConsult").onclick = async () => {
-  if (!state.tags.size) return setStatus("st2", "請至少選一個觸發標籤。", true);
-  const btn = $("bConsult"); btn.disabled = true; state.running = true; state.results = {};
-  $("s3").classList.remove("off"); renderDepts(); renderReport();
+function allSugs() { return KB.depts.flatMap(d => state.results[d.key]?.suggestions || []); }
+async function consolidate() {
+  const sugs = allSugs();
+  state.consolidateNote = "";
+  if (!sugs.length) { state.consolidated = []; return; }
+  const list = sugs.map(s => `${s.id}｜${deptName(s.dept)}｜${s.light}燈｜事實：${s.fact || "—"}｜建議：${s.what}｜對象：${s.to || "—"}｜${s.when}｜${s.owner}｜${s.impact}`).join("\n");
+  const prompt = `以下是六個部門對同一件採購案提出的建議，每行開頭是編號。請只做「合併與排序」，不要新增意見，也不要改寫建議內容。
+
+${list}
+
+工作：
+1. 把「針對同一件事實」的建議放在同一組（例如兩個部門都提到同一家廠商的同一個問題）。不同事實不要硬合併。
+2. 每組給一個 20 字內的標題，只描述事實，沿用原文用詞。
+3. 每個編號必須出現，而且只能出現一次。
+
+只回覆 JSON：{"groups":[{"ids":["編號"],"label":"標題"}]}`;
+  try {
+    const out = await sample.json(prompt, {modelTier: "quick", cache: false});
+    const byId = new Map(sugs.map(s => [s.id, s])), used = new Set(), groups = [];
+    for (const g of Array.isArray(out?.groups) ? out.groups : []) {
+      const ids = (Array.isArray(g?.ids) ? g.ids : []).map(String);
+      if (!ids.length) continue;
+      if (ids.some(id => !byId.has(id) || used.has(id))) throw {code: "invalid_groups"};
+      ids.forEach(id => used.add(id));
+      groups.push({members: ids.map(id => byId.get(id)), label: String(g.label || "").trim()});
+    }
+    if (!groups.length) throw {code: "invalid_groups"};
+    sugs.filter(s => !used.has(s.id)).forEach(s => groups.push({members: [s], label: s.fact}));
+    state.consolidated = groups.map(buildItem);
+  } catch (e) {
+    state.consolidated = null;
+    state.consolidateNote = "彙整暫時無法使用，以下改依各部門原始意見逐條列出（未合併）。";
+  }
+}
+const RANK = {紅: 0, 黃: 1, 綠: 2};
+function buildItem(g) {
+  const m = g.members;
+  const light = m.map(s => s.light).sort((a, b) => RANK[a] - RANK[b])[0];
+  // 影響層級只取各部門原始判斷中最高者，不採用彙整呼叫自行給的層級（彙整不得改變實質內容）
+  const impact = m.map(s => s.impact).sort()[0];
+  const depts = [...new Set(m.map(s => s.dept))];
+  return {key: m.map(s => s.id).join("+"), label: g.label || m[0].fact || m[0].what, members: m, light, impact,
+    owner: m.some(s => s.owner === "採購現在行動") ? "採購現在行動" : m.some(s => s.owner === "轉請其他部門處理") ? "轉請其他部門處理" : "僅供知悉",
+    depts, rules: [...new Set(m.flatMap(s => s.rules?.length ? s.rules : (state.results[s.dept]?.rules || [])))]};
+}
+function sortedItems() {
+  const items = state.consolidated || allSugs().map(s => buildItem({members: [s], label: s.fact}));
+  return [...items].sort((a, b) => a.impact.localeCompare(b.impact) || RANK[a.light] - RANK[b.light] || b.depts.length - a.depts.length);
+}
+function layers() {
+  const items = sortedItems();
+  const need = items.filter(i => i.owner === "採購現在行動" && i.impact !== "L3").slice(0, 3);
+  const needKeys = new Set(need.map(i => i.key));
+  return {need, fyi: items.filter(i => !needKeys.has(i.key))};
+}
+async function consult() {
+  if (state.running) return;
+  if (!state.tags.size) setStatus("st2", "目前沒有觸發標籤，只會比對所有案件適用的規則。");
+  $("bConsult").disabled = true; $("bAgain").disabled = true; state.running = true;
+  state.results = {}; state.statuses = {}; state.consolidated = null; state.consolidateNote = ""; state.seconds = null;
+  const t0 = performance.now();
+  $("s3").classList.remove("off"); $("deptBox").open = true; setPhase(2); renderDepts(); renderReport();
   $("s3").scrollIntoView({behavior: "smooth", block: "start"});
-  setStatus("st2", "五個部門同步判斷中，稽核處最後回覆，約需 1～3 分鐘…");
+  setStatus("st2", "五個部門同步判斷中，稽核處最後回覆，再整理成首屏，約需 1～3 分鐘…");
   const first = KB.depts.filter(d => d.key !== "aud");
   await Promise.all(first.map(d => askDept(d)));
-  const others = first.map(d => { const r = state.results[d.key]; return r?.light ? `${d.name}：${r.light}｜${r.conclusion}` : `${d.name}：未回覆`; }).join("\n");
+  const others = first.map(d => { const r = state.results[d.key]; return r?.light ? `${d.name}：${LIGHT[r.light].name}｜${r.conclusion}` : `${d.name}：未回覆`; }).join("\n");
   await askDept(KB.depts.find(d => d.key === "aud"), others);
-  state.running = false; renderDepts(); btn.disabled = false;
-  setStatus("st2", "會診完成，結果見步驟 3、4。");
+  if (KB.depts.every(d => state.results[d.key]?.light)) await consolidate();
+  state.running = false;
+  state.seconds = Math.round((performance.now() - t0) / 1000);
+  if (KB.depts.every(d => state.results[d.key]?.light)) state.history.push({at: new Date().toLocaleTimeString("zh-TW", {hour: "2-digit", minute: "2-digit"}), secs: timeText(), lights: Object.fromEntries(KB.depts.map(d => [d.key, state.results[d.key].light]))});
+  $("deptBox").open = !!state.consolidateNote;
+  renderDepts(); renderReport();
+  $("bConsult").disabled = false; $("bAgain").disabled = false;
+  setPhase(3); setStatus("st2", "會診完成，結果見步驟 4。");
   $("s4").scrollIntoView({behavior: "smooth", block: "start"});
-};
+}
+$("bConsult").onclick = consult;
+$("bAgain").onclick = () => { $("s2").scrollIntoView({behavior: "smooth", block: "start"}); setStatus("st2", "可以修改補充說明或觸發標籤，再按「送進經緯廣場」。"); };
 
-/* ---------- 步驟 4：會診單 ---------- */
-function reportRows() {
-  return KB.depts.map(d => { const r = state.results[d.key]; return {d, r, n: state.extracted ? matchRules(d).length : 0}; });
+/* ---------- 步驟 4：會診結果（採購首屏） ---------- */
+// 計時：送出（請 AI 整理重點）到首屏出現，不含使用者確認標籤的時間
+function timeText() {
+  if (state.seconds == null) return "";
+  const x = state.extractSecs;
+  return x != null ? `整理重點 ${x} 秒＋會診 ${state.seconds} 秒＝合計 ${x + state.seconds} 秒` : `會診 ${state.seconds} 秒`;
+}
+const rows = () => KB.depts.map(d => ({d, r: state.results[d.key], n: state.extracted ? matchRules(d).length : 0}));
+function itemHtml(it, idx, big) {
+  const st = state.statuses[it.key] || {};
+  return `<article class="item ${big ? "big" : ""}">
+    <div class="ihd">${big ? `<span class="no">${idx + 1}</span>` : ""}<span class="pill ${it.light}">${svg(LIGHT[it.light].d, 16, 2.4)}${LIGHT[it.light].name}</span><b>${esc(it.label)}</b></div>
+    <div class="imeta">提出：${esc(it.depts.map(deptName).join("、"))}｜規則：${esc(it.rules.join("、") || "—")}｜${esc(it.impact)} ${IMPACT[it.impact]}（暫判）｜歸屬：${esc(it.owner)}</div>
+    ${it.members.map(s => `<div class="mline">${svg(ICON.chev, 16, 2.2)}<span><b>建議：</b>${esc(s.what)}<small>對象：${esc(s.to || "待確認")}｜時點：${esc(s.when)}｜${esc(deptName(s.dept))}${s.aiDraft ? "｜AI 草擬" : ""}</small></span></div>`).join("")}
+    <div class="dec"><label class="f" for="st-${esc(it.key)}">處理狀態<select id="st-${esc(it.key)}" data-k="${esc(it.key)}">${STATUS.map(o => `<option${(st.s || "待處理") === o ? " selected" : ""}>${o}</option>`).join("")}</select></label>
+      <input type="text" data-k="${esc(it.key)}" placeholder="不適用的理由（建議填寫）" aria-label="不適用的理由" value="${esc(st.reason || "")}"${st.s === "不適用" ? "" : " hidden"}></div>
+  </article>`;
 }
 function renderReport() {
-  const rows = reportRows();
-  const done = rows.filter(x => x.r?.light);
-  const ready = done.length === rows.length;
+  const all = rows(), done = all.filter(x => x.r?.light), ready = done.length === all.length && !state.running;
   $("bCsv").disabled = $("bMd").disabled = !ready;
-  if (!state.extracted || !Object.keys(state.results).length) { $("s4").classList.add("off"); $("report").innerHTML = `<p class="note">六燈到齊後，這裡會產出會診單。</p>`; return; }
+  if (!state.extracted || !Object.keys(state.results).length) { $("s4").classList.add("off"); $("report").innerHTML = `<p class="note-s">六個部門回覆並整理完成後，這裡會出現首屏：一句話結論、需你處理的事項（最多 3 項），其餘收合。</p>`; return; }
   $("s4").classList.remove("off");
-  const reds = done.filter(x => x.r.light === "紅");
-  const verdict = !ready ? "" : reds.length
-    ? `<div class="verdict bad">${reds.length} 個紅燈（${reds.map(x => x.d.name).join("、")}）：退回 ${esc(deptName($("entry").value))}，處理紅旗後再送會診，暫不送報價分析。</div>`
-    : `<div class="verdict ok">六燈到齊、沒有紅燈：可以送報價分析給長官，建議事項一併附上。</div>`;
-  $("report").innerHTML = `<div class="row"><div class="dots">${rows.map(x => `<i class="${x.r?.light || ""}" title="${esc(x.d.name)}"></i>`).join("")}</div><span>${done.length}／6 燈</span></div>${verdict}
-  <div class="tbl"><table><thead><tr><th>部門</th><th>燈號</th><th>結論</th><th>建議與後續</th><th>規則比對命中</th><th>AI 引用</th></tr></thead><tbody>
-  ${rows.map(x => `<tr><td>${esc(x.d.name)}</td><td>${x.r?.light ? `<span class="lt lt-${x.r.light}">${x.r.light}</span>` : "—"}</td><td>${esc(x.r?.conclusion || x.r?.error || "")}</td><td>${esc((x.r?.suggestions || []).join("；"))}</td><td>${x.n}</td><td>${esc((x.r?.rules || []).join("、"))}</td></tr>`).join("")}
-  </tbody></table></div>`;
+  const cnt = l => done.filter(x => x.r.light === l).length;
+  const stats = `<div class="stats" role="img" aria-label="燈號：強烈建議 ${cnt("紅")}、建議討論 ${cnt("黃")}、無意見 ${cnt("綠")}">${["紅", "黃", "綠"].map(l => `<span class="pill ${l}">${svg(LIGHT[l].d, 16, 2.4)}${l} ${cnt(l)}</span>`).join("")}</div>`;
+  if (!ready) {
+    $("report").innerHTML = `<div class="verdict note">${svg(ICON.hub, 40)}<div class="txt"><div class="big">已回覆 ${done.length}／6 個部門</div><div>${state.running ? "其餘部門判斷中，完成後會整理成首屏。" : "有部門回覆失敗，可按「補充後再送一次會診」重送。"}</div></div>${stats}</div>`;
+    return;
+  }
+  const {need, fyi} = layers(), bf = budgetFacts();
+  const red = cnt("紅"), yel = cnt("黃");
+  const head = need.length ? `${red ? `${red} 個部門強烈建議先處理；` : yel ? `${yel} 個部門建議討論；` : ""}以下 ${need.length} 項需你處理，是否採納由採購處決定`
+    : red || yel ? "沒有需要你立即處理的項目，其餘意見僅供知悉" : "六個部門都沒有意見，可以送報價分析";
+  const greens = all.filter(x => x.r.light === "綠").map(x => x.d.name);
+  $("report").innerHTML = `<div style="display:flex;flex-direction:column;gap:18px">
+    <div class="layer1 ${red ? "note" : yel ? "note" : "calm"}">
+      <div class="case">${esc(state.extracted.title || "案件")}｜階段：${esc($("stage").value)}${MODE_NAME[budgetMode()] ? `（${MODE_NAME[budgetMode()]}）` : ""}</div>
+      <div class="big">${esc(head)}</div>
+      ${stats}
+      ${bf ? `<div class="bline">${svg(ICON.coin, 18)}<b>${esc(bf.label || "預算")}</b><span>${esc(bf.text)}</span>${bf.mode === "pre" ? "<small>不計入燈號</small>" : ""}</div>` : ""}
+      ${state.seconds != null ? `<small class="timer">本次耗時：${timeText()}（不含你確認標籤的時間）</small>` : ""}
+    </div>
+    ${state.consolidateNote ? `<p class="status err">${esc(state.consolidateNote)}</p>` : ""}
+    <h3>需你處理（${need.length}）</h3>
+    ${need.length ? `<div class="items">${need.map((it, i) => itemHtml(it, i, true)).join("")}</div>` : `<p class="note-s">沒有需要採購處立即行動的事項。</p>`}
+    <details class="fold"><summary>${svg(ICON.chev, 18, 2.2)}僅供知悉（${fyi.length}）${greens.length ? `・無意見：${esc(greens.join("、"))}` : ""}</summary>
+      <div class="items">${fyi.map((it, i) => itemHtml(it, i, false)).join("") || `<p class="note-s">沒有其他意見。</p>`}</div></details>
+    <button type="button" class="linkbtn" id="bFull">${svg(ICON.hub, 18)}看各部門意見全文</button>
+    <p class="note-s" id="decHint" aria-live="polite"></p>
+    ${historyHtml()}</div>`;
+  $("bFull").onclick = () => { $("deptBox").open = true; $("deptBox").scrollIntoView({behavior: "smooth", block: "start"}); };
+  $("report").querySelectorAll(".dec select").forEach(s => s.onchange = () => {
+    const k = s.dataset.k; state.statuses[k] = {...(state.statuses[k] || {}), s: s.value};
+    s.closest(".dec").querySelector("input").hidden = s.value !== "不適用"; decHint(); });
+  $("report").querySelectorAll(".dec input").forEach(inp => inp.oninput = () => {
+    const k = inp.dataset.k; state.statuses[k] = {...(state.statuses[k] || {}), reason: inp.value}; decHint(); });
+  decHint();
+}
+function decHint() {
+  const el = $("decHint"); if (!el) return;
+  const items = sortedItems();
+  const doneN = items.filter(i => ["已處理", "不適用"].includes(state.statuses[i.key]?.s)).length;
+  const noReason = items.filter(i => i.light === "紅" && state.statuses[i.key]?.s === "不適用" && !(state.statuses[i.key]?.reason || "").trim()).length;
+  el.textContent = items.length ? `已處理或標為不適用 ${doneN}／${items.length} 項。` + (noReason ? `有 ${noReason} 項強烈建議標為不適用但還沒填理由，建議補上，日後查核時有紀錄可循。` : "處理狀態與理由會一併寫進下載的會診單。") : "";
+}
+function historyHtml() {
+  const h = state.history; if (!h.length) return "";
+  const same = KB.depts.filter(d => h.every(r => r.lights[d.key] === h[0].lights[d.key])).length;
+  return `<details class="fold"><summary>${svg(ICON.chev, 18, 2.2)}歷次會診紀錄（${h.length} 次${h.length > 1 ? `；${same}／6 個部門每次燈號相同` : ""}）</summary>
+  <div style="overflow-x:auto"><table class="hist"><thead><tr><th>次數</th><th>耗時</th>${KB.depts.map(d => `<th>${esc(d.name)}</th>`).join("")}</tr></thead><tbody>
+  ${h.map((r, i) => `<tr><td>第 ${i + 1} 次・${esc(r.at)}</td><td>${esc(r.secs)}</td>${KB.depts.map(d => `<td><span class="pill ${r.lights[d.key]}">${svg(LIGHT[r.lights[d.key]].d, 14, 2.4)}${LIGHT[r.lights[d.key]].name}</span></td>`).join("")}</tr>`).join("")}
+  </tbody></table></div>
+  <p class="note-s">${h.length < 2 ? "只跑過 1 次。按「補充後再送一次會診」重跑，可比較燈號是否一致。" : `跑了 ${h.length} 次：${same}／6 個部門每次燈號相同。`}</p></details>`;
+}
+function exportItems() {
+  const {need, fyi} = layers();
+  return [...need.map(i => ["需你處理", i]), ...fyi.map(i => ["僅供知悉", i])];
 }
 function reportCsv() {
   const q = s => `"${String(s ?? "").replace(/"/g, '""')}"`;
-  const x = state.extracted;
-  const head = [["遠東經緯島 會診單（模擬資料）"], ["案件", x.title], ["入口", deptName($("entry").value), $("stage").value], ["觸發標籤", [...state.tags].join("、")], [], ["部門", "燈號", "結論", "建議與後續", "規則比對命中", "AI 引用規則"]];
-  const body = reportRows().map(r => [r.d.name, r.r?.light, r.r?.conclusion, (r.r?.suggestions || []).join("；"), r.n, (r.r?.rules || []).join("、")]);
-  return "﻿" + [...head, ...body].map(r => r.map(q).join(",")).join("\r\n");
+  const x = state.extracted, bf = budgetFacts();
+  const head = [["遠東經緯島 會診單（模擬資料）"], ["案件", x.title], ["入口", deptName($("entry").value), $("stage").value], ["觸發標籤", [...state.tags].map(t => `${t}（${state.tagEvidence.get(t) || "使用者手動加入"}）`).join("、")],
+    ...(bf ? [[bf.label || "預算", bf.text]] : []), ["耗時", timeText()], ["說明", "各部門意見供採購處參考，是否採納由採購處決定"], ...(state.consolidateNote ? [["備註", state.consolidateNote]] : [])];
+  const items = [[], ["首屏事項（強烈建議在前）"], ["分層", "順序", "燈號", "事項", "建議（做什麼／對象／時點／部門）", "提出部門", "規則編號", "歸屬", "影響層級", "採購處處理狀態", "不適用理由"],
+    ...exportItems().map(([layer, i], n) => [layer, n + 1, LIGHT[i.light].name, i.label, i.members.map(s => `${s.what}／${s.to || "待確認"}／${s.when}／${deptName(s.dept)}`).join("；"),
+      i.depts.map(deptName).join("、"), i.rules.join("、"), i.owner, `${i.impact}（暫判）`, state.statuses[i.key]?.s || "待處理", state.statuses[i.key]?.s === "不適用" ? (state.statuses[i.key]?.reason || "（未填）") : ""])];
+  const full = [[], ["各部門意見全文"], ["部門", "燈號", "意見", "結論", "依據", "規則比對命中", "AI 引用規則"],
+    ...rows().map(r => [r.d.name, r.r?.light, r.r?.light ? LIGHT[r.r.light].name : "", r.r?.conclusion, r.r?.evidence, r.n, (r.r?.rules || []).join("、")])];
+  const hist = [[], ["歷次會診紀錄"], ["次數", "耗時", ...KB.depts.map(d => d.name)], ...state.history.map((h, i) => [`第 ${i + 1} 次 ${h.at}`, h.secs, ...KB.depts.map(d => LIGHT[h.lights[d.key]].name)])];
+  return "﻿" + [...head, ...items, ...full, ...hist].map(r => r.map(q).join(",")).join("\r\n");
 }
 function reportMd() {
-  const x = state.extracted;
-  return `# 遠東經緯島 會診單（模擬資料）\n\n- 案件：${x.title}\n- 入口：${deptName($("entry").value)}・${$("stage").value}\n- 觸發標籤：${[...state.tags].join("、")}\n\n` +
-    reportRows().map(r => `## ${r.d.name}｜${r.r?.light || "—"}\n${r.r?.conclusion || ""}\n${(r.r?.suggestions || []).map(s => `- ${s}`).join("\n")}\n依據：${(r.r?.rules || []).join("、") || "—"}（規則比對命中 ${r.n} 條）\n`).join("\n");
+  const x = state.extracted, bf = budgetFacts();
+  return `# 遠東經緯島 會診單（模擬資料）\n\n- 案件：${x.title}\n- 入口：${deptName($("entry").value)}・${$("stage").value}\n- 觸發標籤：${[...state.tags].join("、")}\n${bf ? `- ${bf.label || "預算"}：${bf.text}\n` : ""}- 耗時：${timeText() || "—"}\n- 各部門意見供採購處參考，是否採納由採購處決定\n${state.consolidateNote ? `- 備註：${state.consolidateNote}\n` : ""}\n` +
+    `## 首屏事項\n` + (exportItems().map(([layer, i], n) => `${n + 1}. 〔${layer}〕〔${LIGHT[i.light].name}〕${i.label}（提出：${i.depts.map(deptName).join("、")}；規則：${i.rules.join("、") || "—"}；歸屬：${i.owner}；${i.impact} 暫判）\n` +
+      i.members.map(s => `   - 建議：${s.what}（對象：${s.to || "待確認"}；時點：${s.when}；${deptName(s.dept)}${s.aiDraft ? "；AI 草擬" : ""}）`).join("\n") +
+      `\n   - 處理狀態：${state.statuses[i.key]?.s || "待處理"}${state.statuses[i.key]?.s === "不適用" ? `，理由：${state.statuses[i.key]?.reason || "未填"}` : ""}`).join("\n") || "- 無") +
+    `\n\n## 各部門意見全文\n` + rows().map(r => `### ${r.d.name}｜${r.r?.light ? `${r.r.light}燈・${LIGHT[r.r.light].name}` : "—"}\n${r.r?.conclusion || ""}\n${(r.r?.suggestions || []).map(s => `- ${sugLine(s)}（${s.owner}）`).join("\n")}\n依據：${r.r?.evidence || "—"}（${(r.r?.rules || []).join("、") || "未引用規則"}；規則比對命中 ${r.n} 條）\n`).join("\n") +
+    `\n## 歷次會診紀錄\n` + state.history.map((h, i) => `- 第 ${i + 1} 次 ${h.at}（${h.secs}）：` + KB.depts.map(d => `${d.name} ${LIGHT[h.lights[d.key]].name}`).join("、")).join("\n") + "\n";
 }
 async function save(filename, data) {
   try { await downloads.save({filename, data}); setStatus("st4", `已存檔：${filename}`); }
-  catch (e) { setStatus("st4", e?.code === "cancelled" || e?.code === "declined" ? "已取消存檔。" : "存檔沒有完成，請再試一次。", e?.code !== "cancelled"); }
+  catch (e) { setStatus("st4", e?.code === "cancelled" || e?.code === "declined" ? "已取消存檔。" : "存檔沒有完成，請再試一次。", !["cancelled","declined"].includes(e?.code)); }
 }
 const stamp = () => new Date().toISOString().slice(0, 10).replace(/-/g, "");
 $("bCsv").onclick = () => save(`經緯島會診單_${stamp()}.csv`, reportCsv());
 $("bMd").onclick = () => save(`經緯島會診單_${stamp()}.md`, reportMd());
+$("stage").onchange = () => { if (state.extracted) { renderSummary(); renderReport(); } };
 $("bReset").onclick = () => {
-  Object.assign(state, {files: [], extracted: null, tags: new Set(), results: {}, running: false});
-  renderFiles(); renderDepts(); renderReport(); $("memo").value = "";
-  $("summary").innerHTML = `<p class="note">送件後，AI 會先讀檔，抽出重點並轉成觸發標籤。</p>`;
-  $("s2").classList.add("off"); $("s3").classList.add("off"); $("bConsult").disabled = true;
+  if (state.running) return;
+  Object.assign(state, {files: [], extracted: null, tags: new Set(), tagEvidence: new Map(), results: {}, running: false, statuses: {}, history: [], consolidated: null, consolidateNote: "", seconds: null});
+  renderFiles(); renderDepts(); renderReport(); setPhase(0); $("memo").value = "";
+  $("summary").innerHTML = `<p class="note-s">送件後，AI 會先讀完檔案，整理出標的、預算、各家廠商條件，並判斷這件案子有哪些特徵（觸發標籤），每項都附依據。</p>`;
+  $("s2").classList.add("off"); $("s3").classList.add("off"); $("bConsult").disabled = true; $("bAgain").disabled = true;
   ["st1","st2","st4"].forEach(i => setStatus(i, "")); window.scrollTo({top: 0, behavior: "smooth"});
 };
 </script>
